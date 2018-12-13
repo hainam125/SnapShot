@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using NetworkMessage;
 
-public class ClientObject : MonoBehaviour {
+public class ClientObject : MonoBehaviour
+{
+    private static float speed = 5f;
     private Quaternion desiredRotation;
     private Vector3 desiredPosition;
 
@@ -22,5 +24,30 @@ public class ClientObject : MonoBehaviour {
     {
         desiredRotation = Optimazation.DecompressRot(existingEntity.rotation);
         desiredPosition = Optimazation.DecompressPos1(existingEntity.position);// + new Vector3(2, 0, 0);
+    }
+
+    public void Predict(KeyCode code) {
+        switch (code) {
+            case KeyCode.W:
+                transform.position += speed * Time.deltaTime * Vector3.forward;
+                desiredPosition = transform.position;
+                break;
+            case KeyCode.S:
+                transform.position -= speed * Time.deltaTime * Vector3.forward;
+                desiredPosition = transform.position;
+                break;
+            case KeyCode.D:
+                transform.position += speed * Time.deltaTime * Vector3.right;
+                desiredPosition = transform.position;
+                break;
+            case KeyCode.A:
+                transform.position -= speed * Time.deltaTime * Vector3.right;
+                desiredPosition = transform.position;
+                break;
+            case KeyCode.Space:
+                transform.Rotate(new Vector3(0, 100f, 0) * Time.deltaTime);
+                desiredRotation = transform.rotation;
+                break;
+    }
     }
 }

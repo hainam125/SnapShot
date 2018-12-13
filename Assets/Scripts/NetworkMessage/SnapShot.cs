@@ -34,5 +34,6 @@ namespace NetworkMessage
         public List<NewEntity> newEntities;
         public List<ExistingEntity> existingEntities;
         public List<DestroyedEntity> destroyedEntities;
+        public long commandId;
     }
 }

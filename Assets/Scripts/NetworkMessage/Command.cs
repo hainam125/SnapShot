@@ -15,9 +15,11 @@ namespace NetworkMessage
             { KeyCode.Space, 4 },
         };
         public byte keyCode;
+        public long id;
 
-        public Command(KeyCode code)
+        public Command(long cmdId, KeyCode code)
         {
+            id = cmdId;
             keyCode = map[code];
         }
     }

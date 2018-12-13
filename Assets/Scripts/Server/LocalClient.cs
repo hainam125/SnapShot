@@ -9,7 +9,9 @@ public class LocalClient : MonoBehaviour
     public List<ClientObject> syncObjects;
     public int objectIndex;
     public float delayTime = 0.1f;
+    public bool prediction;
     private LocalServer server;
+    private long commandSoFar = -1;
 
     private void Awake()
     {
@@ -18,6 +20,7 @@ public class LocalClient : MonoBehaviour
 
     private void UpdateState(SnapShot snapShot)
     {
+        if (prediction && snapShot.commandId < commandSoFar) return;
         var entities = snapShot.existingEntities;
         for (int i = 0; i < syncObjects.Count; i++)
         {
@@ -52,26 +55,36 @@ public class LocalClient : MonoBehaviour
 
     private void SendUpCommand()
     {
-        StartCoroutine(SendCommand(new Command(KeyCode.W)));
+        commandSoFar++;
+        StartCoroutine(SendCommand(new Command(commandSoFar, KeyCode.W)));
+        if (prediction) syncObjects[objectIndex].Predict(KeyCode.W);
     }
 
     private void SendDownCommand()
     {
-        StartCoroutine(SendCommand(new Command(KeyCode.S)));
+        commandSoFar++;
+        StartCoroutine(SendCommand(new Command(commandSoFar, KeyCode.S)));
+        if (prediction) syncObjects[objectIndex].Predict(KeyCode.S);
     }
 
     private void SendLeftCommand()
     {
-        StartCoroutine(SendCommand(new Command(KeyCode.A)));
+        commandSoFar++;
+        StartCoroutine(SendCommand(new Command(commandSoFar, KeyCode.A)));
+        if(prediction) syncObjects[objectIndex].Predict(KeyCode.A);
     }
 
     private void SendRightCommand()
     {
-        StartCoroutine(SendCommand(new Command(KeyCode.D)));
+        commandSoFar++;
+        StartCoroutine(SendCommand(new Command(commandSoFar, KeyCode.D)));
+        if (prediction) syncObjects[objectIndex].Predict(KeyCode.D);
     }
 
     private void SendRotateCommand()
     {
-        StartCoroutine(SendCommand(new Command(KeyCode.Space)));
+        commandSoFar++;
+        StartCoroutine(SendCommand(new Command(commandSoFar, KeyCode.Space)));
+        if (prediction) syncObjects[objectIndex].Predict(KeyCode.Space);
     }
 }

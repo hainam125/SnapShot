@@ -8,9 +8,15 @@ public class LocalServer : MonoBehaviour
 {
     public List<ServerObject> objects;
     public List<LocalClient> clients;
+    private Dictionary<LocalClient, long> commandsSoFar = new Dictionary<LocalClient, long>();
 
     private IEnumerator Start()
     {
+        foreach (var client in clients)
+        {
+            commandsSoFar[client] = 0;
+        }
+
         var tick = 20;
         var time = 1.0f / tick;
         while (true)
@@ -28,6 +34,7 @@ public class LocalServer : MonoBehaviour
             var snapShot = new SnapShot() { existingEntities = syncEntities };
             foreach(var client in clients)
             {
+                snapShot.commandId = commandsSoFar[client];
                 StartCoroutine(client.ReceiveSnapShot(snapShot));
             }
             yield return new WaitForSeconds(time);
@@ -37,5 +44,7 @@ public class LocalServer : MonoBehaviour
     public void ReceiveCommand(int objectIdx, Command command)
     {
         objects[objectIdx].ReceiveCommand(command);
+        if (!commandsSoFar.ContainsKey(clients[objectIdx])) commandsSoFar[clients[objectIdx]] = 0;
+        commandsSoFar[clients[objectIdx]] = command.id;
     }
 }
