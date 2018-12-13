@@ -6,7 +6,7 @@ using System;
 
 public class LocalServer : MonoBehaviour
 {
-    public List<OriginObject> objects;
+    public List<ServerObject> objects;
     public List<LocalClient> clients;
 
     private IEnumerator Start()
@@ -36,6 +36,6 @@ public class LocalServer : MonoBehaviour
 
     public void ReceiveCommand(int objectIdx, Command command)
     {
-        throw new NotImplementedException();
+        objects[objectIdx].ReceiveCommand(command);
     }
 }

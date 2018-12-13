@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using NetworkMessage;
 
-public class TestObject : MonoBehaviour {
+public class ClientObject : MonoBehaviour {
     private Quaternion desiredRotation;
     private Vector3 desiredPosition;
 
@@ -18,7 +18,7 @@ public class TestObject : MonoBehaviour {
         transform.position = Vector3.Lerp(transform.position, desiredPosition, 0.5f);
     }
 
-    public void setDesiredValue(ExistingEntity existingEntity)
+    public void SetDesiredValue(ExistingEntity existingEntity)
     {
         desiredRotation = Optimazation.DecompressRot(existingEntity.rotation);
         desiredPosition = Optimazation.DecompressPos1(existingEntity.position);// + new Vector3(2, 0, 0);

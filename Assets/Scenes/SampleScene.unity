@@ -432,7 +432,7 @@ Camera:
     serializedVersion: 2
     x: 0
     y: 0.5
-    width: 1
+    width: 0.5
     height: 0.5
   near clip plane: 0.3
   far clip plane: 1000
@@ -581,7 +581,7 @@ MonoBehaviour:
   syncObjects:
   - {fileID: 1955862477}
   objectIndex: 0
-  delayTime: 0.075
+  delayTime: 0.1
 --- !u!1 &1187731264
 GameObject:
   m_ObjectHideFlags: 0
