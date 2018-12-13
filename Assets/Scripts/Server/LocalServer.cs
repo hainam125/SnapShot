@@ -6,6 +6,7 @@ using System;
 
 public class LocalServer : MonoBehaviour
 {
+    public int tick = 20;
     public List<ServerObject> objects;
     public List<LocalClient> clients;
     private Dictionary<LocalClient, long> commandsSoFar = new Dictionary<LocalClient, long>();
@@ -16,8 +17,7 @@ public class LocalServer : MonoBehaviour
         {
             commandsSoFar[client] = 0;
         }
-
-        var tick = 20;
+        
         var time = 1.0f / tick;
         while (true)
         {
@@ -34,8 +34,9 @@ public class LocalServer : MonoBehaviour
             var snapShot = new SnapShot() { existingEntities = syncEntities };
             foreach(var client in clients)
             {
-                snapShot.commandId = commandsSoFar[client];
-                StartCoroutine(client.ReceiveSnapShot(snapShot));
+                var clone = snapShot.Clone();
+                clone.commandId = commandsSoFar[client];
+                StartCoroutine(client.ReceiveSnapShot(clone));
             }
             yield return new WaitForSeconds(time);
         }

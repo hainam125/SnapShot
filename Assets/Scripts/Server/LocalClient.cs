@@ -11,7 +11,7 @@ public class LocalClient : MonoBehaviour
     public float delayTime = 0.1f;
     public bool prediction;
     private LocalServer server;
-    private long commandSoFar = -1;
+    private long commandSoFar = 0;
 
     private void Awake()
     {
@@ -20,7 +20,7 @@ public class LocalClient : MonoBehaviour
 
     private void UpdateState(SnapShot snapShot)
     {
-        if (prediction && snapShot.commandId < commandSoFar) return;
+        if (prediction && snapShot.commandId < commandSoFar - 1) return;
         var entities = snapShot.existingEntities;
         for (int i = 0; i < syncObjects.Count; i++)
         {

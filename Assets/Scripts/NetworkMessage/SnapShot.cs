@@ -35,5 +35,16 @@ namespace NetworkMessage
         public List<ExistingEntity> existingEntities;
         public List<DestroyedEntity> destroyedEntities;
         public long commandId;
+
+        public SnapShot Clone()
+        {
+            return new SnapShot()
+            {
+                newEntities = newEntities,
+                existingEntities = existingEntities,
+                destroyedEntities = destroyedEntities,
+                commandId = commandId
+            };
+        }
     }
 }
