@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using NetworkMessage;
-using System;
+using UnityEngine.UI;
 
 public class LocalServer : MonoBehaviour
 {
@@ -10,9 +10,26 @@ public class LocalServer : MonoBehaviour
     public List<ServerObject> objects;
     public List<LocalClient> clients;
     private Dictionary<LocalClient, long> commandsSoFar = new Dictionary<LocalClient, long>();
+    private List<SnapShot> snapShots = new List<SnapShot>();
+    private bool recording;
+    public Slider slider;
+    public Button button;
 
     private IEnumerator Start()
     {
+        recording = true;
+        button.onClick.AddListener(() => { recording = false; });
+        slider.onValueChanged.AddListener((value) =>
+        {
+            int idx = (int)(value * snapShots.Count);
+            var entities = snapShots[idx].existingEntities;
+            for (int i = 0; i < objects.Count; i++)
+            {
+                objects[i].transform.rotation = Optimazation.DecompressRot(entities[i].rotation);
+                objects[i].transform.position = Optimazation.DecompressPos1(entities[i].position);
+            }
+        });
+
         foreach (var client in clients)
         {
             commandsSoFar[client] = 0;
@@ -24,12 +41,20 @@ public class LocalServer : MonoBehaviour
             var syncEntities = new List<ExistingEntity>();
             foreach (var gameObject in objects)
             {
-                var entity = new ExistingEntity()
+                if (!gameObject.isDirty)
                 {
-                    position = Optimazation.CompressPos1(gameObject.transform.position),
-                    rotation = Optimazation.CompressRot(gameObject.transform.rotation)
-                };
-                syncEntities.Add(entity);
+                    syncEntities.Add(null);
+                    gameObject.isDirty = false;
+                }
+                else
+                {
+                    var entity = new ExistingEntity()
+                    {
+                        position = Optimazation.CompressPos1(gameObject.transform.position),
+                        rotation = Optimazation.CompressRot(gameObject.transform.rotation)
+                    };
+                    syncEntities.Add(entity);
+                }
             }
             var snapShot = new SnapShot() { existingEntities = syncEntities };
             foreach(var client in clients)
@@ -38,6 +63,7 @@ public class LocalServer : MonoBehaviour
                 clone.commandId = commandsSoFar[client];
                 StartCoroutine(client.ReceiveSnapShot(clone));
             }
+            if(recording) snapShots.Add(snapShot);
             yield return new WaitForSeconds(time);
         }
     }

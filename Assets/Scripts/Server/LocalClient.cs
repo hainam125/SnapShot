@@ -6,21 +6,37 @@ using UnityEngine;
 
 public class LocalClient : MonoBehaviour
 {
+    public const int Tick = 40;
     public List<ClientObject> syncObjects;
     public int objectIndex;
     public float delayTime = 0.1f;
     public bool prediction;
     private LocalServer server;
     private long commandSoFar = 0;
+    private bool pressUp;
+    private bool pressDown;
+    private bool pressRight;
+    private bool pressLeft;
+    private bool pressRot;
 
     private void Awake()
     {
         server = FindObjectOfType<LocalServer>();
     }
 
+    private IEnumerator Start()
+    {
+        var time = 1.0f / Tick;
+        while (true)
+        {
+            InputUpdate();
+            yield return new WaitForSeconds(time);
+        }
+    }
+
     private void UpdateState(SnapShot snapShot)
     {
-        if (prediction && snapShot.commandId < commandSoFar - 1) return;
+        if (prediction && snapShot.commandId < commandSoFar) return;
         var entities = snapShot.existingEntities;
         for (int i = 0; i < syncObjects.Count; i++)
         {
@@ -40,16 +56,49 @@ public class LocalClient : MonoBehaviour
         server.ReceiveCommand(objectIndex, command);
     }
 
+    private void InputUpdate()
+    {
+        /*if(objectIndex == 0)
+        {
+            Debug.Log("=====================");
+        }*/
+        if (pressUp)
+        {
+            SendUpCommand();
+            pressUp = false;
+        }
+        if (pressDown)
+        {
+            SendDownCommand();
+            pressDown = false;
+        }
+        if (pressLeft)
+        {
+            SendLeftCommand();
+            pressLeft = false;
+        }
+        if (pressRight)
+        {
+            SendRightCommand();
+            pressRight = false;
+        }
+        if (pressRot)
+        {
+            SendRotateCommand();
+            pressRot = false;
+        }
+    }
+
 
     private void Update()
     {
         if (objectIndex == 0)
         {
-            if (Input.GetKey(KeyCode.W)) SendUpCommand();
-            else if (Input.GetKey(KeyCode.S)) SendDownCommand();
-            if (Input.GetKey(KeyCode.D)) SendRightCommand();
-            else if (Input.GetKey(KeyCode.A)) SendLeftCommand();
-            if (Input.GetKey(KeyCode.Space)) SendRotateCommand();
+            if (Input.GetKey(KeyCode.W)) pressUp = true;
+            else if (Input.GetKey(KeyCode.S)) pressDown = true;
+            if (Input.GetKey(KeyCode.D)) pressRight = true;
+            else if (Input.GetKey(KeyCode.A)) pressLeft = true;
+            if (Input.GetKey(KeyCode.Space)) pressRot = true;
         }
     }
 
