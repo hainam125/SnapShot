@@ -36,15 +36,20 @@ public class LocalServer : MonoBehaviour
         }
         
         var time = 1.0f / tick;
+        var waitTime = new WaitForSeconds(time);
         while (true)
         {
+            foreach (var gameObject in objects)
+            {
+                gameObject.UpdateGame();
+            }
+
             var syncEntities = new List<ExistingEntity>();
             foreach (var gameObject in objects)
             {
                 if (!gameObject.isDirty)
                 {
                     syncEntities.Add(null);
-                    gameObject.isDirty = false;
                 }
                 else
                 {
@@ -54,6 +59,7 @@ public class LocalServer : MonoBehaviour
                         rotation = Optimazation.CompressRot(gameObject.transform.rotation)
                     };
                     syncEntities.Add(entity);
+                    gameObject.isDirty = false;
                 }
             }
             var snapShot = new SnapShot() { existingEntities = syncEntities };
@@ -64,7 +70,7 @@ public class LocalServer : MonoBehaviour
                 StartCoroutine(client.ReceiveSnapShot(clone));
             }
             if(recording) snapShots.Add(snapShot);
-            yield return new WaitForSeconds(time);
+            yield return waitTime;
         }
     }
 

@@ -16,9 +16,11 @@ namespace NetworkMessage
         };
         public byte keyCode;
         public long id;
+        public long tick;
 
-        public Command(long cmdId, KeyCode code)
+        public Command(long cmdId, long currentTick, KeyCode code)
         {
+            tick = currentTick;
             id = cmdId;
             keyCode = map[code];
         }
