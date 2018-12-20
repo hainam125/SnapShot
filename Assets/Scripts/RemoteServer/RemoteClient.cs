@@ -1,14 +1,24 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using NetworkMessage;
-using System;
 
 public class RemoteClient : BaseClient
 {
+	[SerializeField]
+private Toggle predictionToggle;
+	[SerializeField]
+private Toggle reconcilationToggle;
+	[SerializeField]
+	private Toggle interpolationToggle;
+
     private void Awake()
     {
         ServerDeltaTime = 1f / 30f;
+		predictionToggle.onValueChanged.AddListener(value => prediction = value);
+		reconcilationToggle.onValueChanged.AddListener(value => reconcilation = value);
+		interpolationToggle.onValueChanged.AddListener(value => entityInterpolation = value);
     }
 
     public void AddObject(ClientObject clientObject)

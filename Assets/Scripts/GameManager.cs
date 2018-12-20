@@ -10,6 +10,8 @@ public class GameManager : MonoBehaviour
 
     public string username;
 
+[	SerializeField]
+	private Transform environment;
     [SerializeField]
     private GameObject object1Prefab;
     [SerializeField]
@@ -34,7 +36,7 @@ public class GameManager : MonoBehaviour
         gameObject.SetActive(true);
         remoteClient.gameObject.SetActive(true);
         remoteClient.objectIndex = objectId;
-        var clientObject = Instantiate(object1Prefab).GetComponent<ClientObject>();
+        var clientObject = Instantiate(object1Prefab, environment).GetComponent<ClientObject>();
         clientObject.id = objectId;
         clientObject.SetName(username);
 
@@ -49,7 +51,7 @@ public class GameManager : MonoBehaviour
         var newObjects = new Dictionary<long, ClientObject>();
         foreach (var e in newEntities)
         {
-            var clientObj = Instantiate(object2Prefab).GetComponent<ClientObject>();
+            var clientObj = Instantiate(object2Prefab, environment).GetComponent<ClientObject>();
             clientObj.id = e.id;
             var rot = Optimazation.DecompressRot(e.rotation);
             var pos = Optimazation.DecompressPos2(e.position);
@@ -69,7 +71,7 @@ public class GameManager : MonoBehaviour
     {
         var userJoined = JsonUtility.FromJson<UserJoined>(response.data);
         Debug.Log("User joined: " + userJoined.username);
-        var clientObject = Instantiate(object2Prefab).GetComponent<ClientObject>();
+        var clientObject = Instantiate(object2Prefab, environment).GetComponent<ClientObject>();
         clientObject.id = userJoined.objectId;
         clientObject.SetName(userJoined.username);
         remoteClient.AddObject(clientObject);

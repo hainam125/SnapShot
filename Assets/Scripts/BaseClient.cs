@@ -54,8 +54,8 @@ public abstract class BaseClient : MonoBehaviour {
             }
             else
             {
-                obj.desiredRotation = rot;
-                obj.desiredPosition = pos;
+                obj.desiredRotation = obj.transform.rotation = rot;
+                obj.desiredPosition = obj.transform.position = pos;
             }
         }
     }

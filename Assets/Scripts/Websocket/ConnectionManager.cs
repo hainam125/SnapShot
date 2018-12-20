@@ -28,8 +28,8 @@ public class ConnectionManager : MonoBehaviour
         {
             Debug.Log("Disconnected!");
         });
-        //api.Init("ws://192.168.34.34:9000/ws");
-        api.Init("wss://192.168.52.16/ws");
+        api.Init("ws://localhost:9000/ws");
+        //api.Init("wss://192.168.52.16/ws");
     }
 
     private void Update()
