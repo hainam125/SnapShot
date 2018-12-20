@@ -4,22 +4,32 @@ using UnityEngine;
 
 namespace NetworkMessage
 {
+    [System.Serializable]
     public struct CompressRotation
     {
         public short a, b, c;
         public byte maxIndex;
     }
 
+    [System.Serializable]
     public struct CompressPosition
     {
         public short a1, b1, c1;
         public byte a2, b2, c2;
     }
 
+    [System.Serializable]
     public struct CompressPosition1
     {
         public byte a1, b1, c1;
         public byte a2, b2, c2;
+    }
+
+    [System.Serializable]
+    public struct CompressPosition2
+    {
+        public sbyte a1, b1, c1;
+        public sbyte a2, b2, c2;
     }
 
 
@@ -64,6 +74,43 @@ namespace NetworkMessage
             var c2 = pos.c2 / POS_FLOAT_PRECISION_MULT;
             return new Vector3(a1 + a2, b1 + b2, c1 + c2);
         }
+
+        public static CompressPosition2 CompressPos2(Vector3 pos)
+        {
+            int x1 = Mathf.FloorToInt(pos.x);
+            float x2 = pos.x - x1;
+            float a1 = x1;
+            float a2 = (x2 * 2 - 1) * POS1_FLOAT_PRECISION_MULT;
+            int y1 = Mathf.FloorToInt(pos.y);
+            float y2 = pos.y - y1;
+            float b1 = y1;
+            float b2 = (y2 * 2 - 1) * POS1_FLOAT_PRECISION_MULT;
+            int z1 = Mathf.FloorToInt(pos.z);
+            float z2 = pos.z - z1;
+            float c1 = z1;
+            float c2 = (z2 * 2 - 1) * POS1_FLOAT_PRECISION_MULT;
+            return new CompressPosition2()
+            {
+                a1 = (sbyte)a1,
+                b1 = (sbyte)b1,
+                c1 = (sbyte)c1,
+                a2 = (sbyte)a2,
+                b2 = (sbyte)b2,
+                c2 = (sbyte)c2,
+            };
+        }
+
+        public static Vector3 DecompressPos2(CompressPosition2 pos2)
+        {
+            float a1 = (float)pos2.a1;
+            float b1 = (float)pos2.b1;
+            float c1 = (float)pos2.c1;
+            float a2 = (((float)pos2.a2) / POS1_FLOAT_PRECISION_MULT + 1) / 2f;
+            float b2 = (((float)pos2.b2) / POS1_FLOAT_PRECISION_MULT + 1) / 2f;
+            float c2 = (((float)pos2.c2) / POS1_FLOAT_PRECISION_MULT + 1) / 2f;
+            return new Vector3(a1 + a2, b1 + b2, c1 + c2);
+        }
+
         public static CompressPosition CompressPos(Vector3 pos)
         {
             var a1 = Mathf.FloorToInt(pos.x);

@@ -8,12 +8,18 @@ public class LocalServer : MonoBehaviour
 {
     public int tick = 20;
     public List<ServerObject> objects;
+    private Dictionary<long, ServerObject> objectDict = new Dictionary<long, ServerObject>();
     public List<LocalClient> clients;
     private Dictionary<LocalClient, long> commandsSoFar = new Dictionary<LocalClient, long>();
     private List<SnapShot> snapShots = new List<SnapShot>();
     private bool recording;
     public Slider slider;
     public Button button;
+
+    private void Awake()
+    {
+        foreach (var o in objects) objectDict.Add(o.id, o);
+    }
 
     private IEnumerator Start()
     {
@@ -26,7 +32,7 @@ public class LocalServer : MonoBehaviour
             for (int i = 0; i < objects.Count; i++)
             {
                 objects[i].transform.rotation = Optimazation.DecompressRot(entities[i].rotation);
-                objects[i].transform.position = Optimazation.DecompressPos1(entities[i].position);
+                objects[i].transform.position = Optimazation.DecompressPos2(entities[i].position);
             }
         });
 
@@ -49,13 +55,14 @@ public class LocalServer : MonoBehaviour
             {
                 if (!gameObject.isDirty)
                 {
-                    syncEntities.Add(null);
+                    //syncEntities.Add(null);
                 }
                 else
                 {
                     var entity = new ExistingEntity()
                     {
-                        position = Optimazation.CompressPos1(gameObject.transform.position),
+                        id = gameObject.id,
+                        position = Optimazation.CompressPos2(gameObject.transform.position),
                         rotation = Optimazation.CompressRot(gameObject.transform.rotation)
                     };
                     syncEntities.Add(entity);
@@ -76,7 +83,7 @@ public class LocalServer : MonoBehaviour
 
     public void ReceiveCommand(int objectIdx, Command command)
     {
-        objects[objectIdx].ReceiveCommand(command);
+        objectDict[objectIdx].ReceiveCommand(command);
         if (!commandsSoFar.ContainsKey(clients[objectIdx])) commandsSoFar[clients[objectIdx]] = 0;
         commandsSoFar[clients[objectIdx]] = command.id;
     }
