@@ -31,19 +31,16 @@ public class ServerObject : MonoBehaviour
         switch (command.keyCode)
         {
             case 0:
-                transform.position += Speed * deltaTime * Vector3.forward;
+                transform.position += Speed * deltaTime * transform.forward;
                 break;
             case 1:
-                transform.position -= Speed * deltaTime * Vector3.forward;
+                transform.position -= Speed * deltaTime * transform.forward;
                 break;
             case 2:
-                transform.position += Speed * deltaTime * Vector3.right;
+                transform.Rotate(RotateSpeed * deltaTime);
                 break;
             case 3:
-                transform.position -= Speed * deltaTime * Vector3.right;
-                break;
-            case 4:
-                transform.Rotate(RotateSpeed * deltaTime);
+                transform.Rotate(-RotateSpeed * deltaTime);
                 break;
         }
     }

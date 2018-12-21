@@ -36,27 +36,17 @@ public class ClientObject : MonoBehaviour
         var speed = ServerObject.Speed;
         switch (code) {
             case KeyCode.W:
-                //transform.position += speed * deltaTime * Vector3.forward;
-                //desiredPosition = transform.position;
-                desiredPosition += speed * deltaTime * Vector3.forward;
+                desiredPosition += speed * deltaTime * transform.forward;
                 break;
             case KeyCode.S:
-                //transform.position -= speed * deltaTime * Vector3.forward;
-                //desiredPosition = transform.position;
-                desiredPosition -= speed * deltaTime * Vector3.forward;
+                desiredPosition -= speed * deltaTime * transform.forward;
                 break;
             case KeyCode.D:
-                //transform.position += speed * deltaTime * Vector3.right;
-                //desiredPosition = transform.position;
-                desiredPosition += speed * deltaTime * Vector3.right;
+                transform.Rotate(ServerObject.RotateSpeed * deltaTime);
+                desiredRotation = transform.rotation;
                 break;
             case KeyCode.A:
-                //transform.position -= speed * deltaTime * Vector3.right;
-                //desiredPosition = transform.position;
-                desiredPosition -= speed * deltaTime * Vector3.right;
-                break;
-            case KeyCode.Space:
-                transform.Rotate(ServerObject.RotateSpeed * deltaTime);
+                transform.Rotate(-ServerObject.RotateSpeed * deltaTime);
                 desiredRotation = transform.rotation;
                 break;
         }
