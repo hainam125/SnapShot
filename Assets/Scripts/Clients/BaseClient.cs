@@ -16,6 +16,10 @@ public abstract class BaseClient : MonoBehaviour {
     protected long commandSoFar = 0;
     protected WaitForSeconds waitTime = new WaitForSeconds(time);
 
+    protected Queue<SnapShot> snapShots = new Queue<SnapShot>();
+    protected bool hasStartedProcessingSnapShot;
+    protected bool isProcessingShapShot;
+
     private IEnumerator Start()
     {
         while (true)
@@ -26,9 +30,15 @@ public abstract class BaseClient : MonoBehaviour {
         }
     }
 
-    private IEnumerator UpdateState(SnapShot snapShot)
+    protected IEnumerator UpdateState()
     {
-        if (reconcilation && prediction && snapShot.commandId < commandSoFar) yield break;
+        isProcessingShapShot = true;
+        var snapShot = snapShots.Dequeue();
+        if (reconcilation && prediction && snapShot.commandId < commandSoFar)
+        {
+            isProcessingShapShot = false;
+            yield break;
+        }
         var entities = snapShot.existingEntities;
         for (int i = 0; i < entities.Count; i++)
         {
@@ -58,11 +68,26 @@ public abstract class BaseClient : MonoBehaviour {
                 obj.desiredPosition = obj.transform.position = pos;
             }
         }
+        if (snapShots.Count > 0) StartCoroutine(UpdateState());
+        else isProcessingShapShot = false;
     }
 
     protected virtual void InputUpdate()
     {
-        
+    }
+
+    protected void ProcessSnapShot(SnapShot snapShot)
+    {
+        snapShots.Enqueue(snapShot);
+        if (!hasStartedProcessingSnapShot && snapShots.Count > 1)
+        {
+            hasStartedProcessingSnapShot = true;
+            StartCoroutine(UpdateState());
+        }
+        else if (!isProcessingShapShot)
+        {
+            StartCoroutine(UpdateState());
+        }
     }
 
     protected void ProcessInput()

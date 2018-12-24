@@ -41,7 +41,7 @@ public class RoomPanel : MonoBehaviour {
                 {
                     //Debug.Log("create room successfully!: " + roomData.name);
                     gameObject.SetActive(false);
-                    GameManager.Instance.Init(roomData.objectId);
+                    GameManager.Instance.Init(roomData);
                 }
                 else
                 {

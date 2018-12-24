@@ -7,9 +7,9 @@ using NetworkMessage;
 public class RemoteClient : BaseClient
 {
 	[SerializeField]
-private Toggle predictionToggle;
+    private Toggle predictionToggle;
 	[SerializeField]
-private Toggle reconcilationToggle;
+    private Toggle reconcilationToggle;
 	[SerializeField]
 	private Toggle interpolationToggle;
 
@@ -34,8 +34,7 @@ private Toggle reconcilationToggle;
 
     public void ReceiveSnapShot(SnapShot snapShot)
     {
-        StopCoroutine("UpdateState");
-        StartCoroutine("UpdateState", snapShot);
+        ProcessSnapShot(snapShot);
     }
 
     protected override void InputUpdate()

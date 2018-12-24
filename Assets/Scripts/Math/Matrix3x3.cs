@@ -54,12 +54,12 @@ public class Matrix3x3 {
 		m_Matrix._31 = 0; m_Matrix._32 = 0; m_Matrix._33 = 1;
 	}
 
-	public void Translate(float x, float y) {
+	public void TranslateY(float x, float z) {
 		Matrix mat = new Matrix();
 
 		mat._11 = 1; mat._12 = 0; mat._13 = 0;
-		mat._21 = 0; mat._22 = 1; mat._23 = 0;
-		mat._31 = x; mat._32 = y; mat._33 = 1;
+		mat._21 = x; mat._22 = 1; mat._23 = z;
+		mat._31 = 0; mat._32 = 0; mat._33 = 1;
 
 		MatrixMultiply(mat);
 	}
@@ -86,15 +86,38 @@ public class Matrix3x3 {
 		mat._13 = -SinY; mat._23 = 0; mat._33 = CosY;
 
 		MatrixMultiply(mat);
-	}
+    }
 
-	public Vector3 TransformY(Vector3 vPoint) {
-        float tempX = m_Matrix._11 * vPoint.x + m_Matrix._31 * vPoint.z;
-        float tempZ = m_Matrix._13 * vPoint.x + m_Matrix._33 * vPoint.z;
+    //rotate anti-clockwise 
+    public void RotateY(Vector3 fwd, Vector3 side)
+    {
+        Matrix mat = new Matrix();
+
+        mat._11 = fwd.x; mat._21 = 0; mat._31 = side.x;
+        mat._12 = 0; mat._22 = 1; mat._32 = 0;
+        mat._13 = fwd.z; mat._23 = 0; mat._33 = side.z;
+
+        MatrixMultiply(mat);
+    }
+
+    public Vector3 TransformY(Vector3 vPoint) {
+        float tempX = m_Matrix._11 * vPoint.x + m_Matrix._31 * vPoint.z + m_Matrix._21;
+        float tempZ = m_Matrix._13 * vPoint.x + m_Matrix._33 * vPoint.z + m_Matrix._23;
 		return new Vector3(tempX, 0, tempZ);
-	}
+    }
 
-	public float _11 { set { m_Matrix._11 = value; } }
+    public List<Vector3> TransformY(List<Vector3> vPoints)
+    {
+        for (int i = 0; i < vPoints.Count; i++)
+        {
+            float tempX = m_Matrix._11 * vPoints[i].x + m_Matrix._31 * vPoints[i].z + m_Matrix._21;
+            float tempZ = m_Matrix._13 * vPoints[i].x + m_Matrix._33 * vPoints[i].z + m_Matrix._23;
+            vPoints[i] = new Vector3(tempX, 0, tempZ);
+        }
+        return vPoints;
+    }
+
+    public float _11 { set { m_Matrix._11 = value; } }
 	public float _12 { set { m_Matrix._11 = value; } }
 	public float _13 { set { m_Matrix._11 = value; } }
 	public float _21 { set { m_Matrix._11 = value; } }

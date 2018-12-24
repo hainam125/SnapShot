@@ -1112,13 +1112,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 838e450baa200d74fb657cf6d2779199, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  syncObjects:
-  - {fileID: 1955862477}
   objectIndex: 1
   prediction: 1
   reconcilation: 1
   entityInterpolation: 0
-  delayTime: 0.1
+  delayTime: 0
+  syncObjects:
+  - {fileID: 1955862477}
 --- !u!1 &818583310
 GameObject:
   m_ObjectHideFlags: 0
@@ -1473,7 +1473,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f55398087eab4df41b1526e7defa3e2f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tick: 15
+  tick: 10
   objects:
   - {fileID: 1472904611}
   clients:
@@ -1658,13 +1658,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 838e450baa200d74fb657cf6d2779199, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  syncObjects:
-  - {fileID: 1715967694}
   objectIndex: 2
   prediction: 0
   reconcilation: 0
   entityInterpolation: 1
-  delayTime: 0.075
+  delayTime: 0
+  syncObjects:
+  - {fileID: 1715967694}
 --- !u!4 &1295335223
 Transform:
   m_ObjectHideFlags: 0
@@ -1998,6 +1998,7 @@ MonoBehaviour:
   id: 1
   desiredRotation: {x: 0, y: 0, z: 0, w: 0}
   desiredPosition: {x: 0, y: 0, z: 0}
+  nameTxt: {fileID: 0}
 --- !u!23 &1715967696
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2566,6 +2567,7 @@ MonoBehaviour:
   id: 1
   desiredRotation: {x: 0, y: 0, z: 0, w: 0}
   desiredPosition: {x: 0, y: 0, z: 0}
+  nameTxt: {fileID: 0}
 --- !u!23 &1955862479
 MeshRenderer:
   m_ObjectHideFlags: 0

@@ -31,6 +31,7 @@ namespace NetworkMessage
     {
         public int prefabId;
         public CompressRotation rotation;
+        public CompressPosition2 bound;
         public CompressPosition2 position;
     }
 

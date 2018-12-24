@@ -27,9 +27,7 @@ public class LocalClient : BaseClient
     public IEnumerator ReceiveSnapShot(SnapShot snapShot)
     {
         yield return new WaitForSeconds(delayTime);
-        StopCoroutine("UpdateState");
-        StartCoroutine("UpdateState", snapShot);
-        //StartCoroutine(UpdateState(snapShot));
+        ProcessSnapShot(snapShot);
     }
 
     public override IEnumerator SendCommand(Command command)

@@ -7,6 +7,7 @@ using NetworkMessage;
 
 public class ClientObject : MonoBehaviour
 {
+    public const int PrefabId = 0;
     public long id;
     private static float deltaTime = 1f / LocalClient.Tick;
     public Quaternion desiredRotation;

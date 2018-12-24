@@ -17,6 +17,8 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private GameObject object2Prefab;
     [SerializeField]
+    private GameObject obstaclePrefab;
+    [SerializeField]
     private RemoteClient remoteClient;
 
     private void Awake()
@@ -43,6 +45,21 @@ public class GameManager : MonoBehaviour
         remoteClient.AddObject(clientObject);
     }
 
+    public void Init(CreateRoom createRoom)
+    {
+        var snapShot = JsonUtility.FromJson<SnapShot>(createRoom.snapShot);
+        Init(createRoom.objectId);
+        var newEntities = snapShot.newEntities;
+        var newObjects = new Dictionary<long, ClientObject>();
+        foreach (var e in newEntities)
+        {
+            if (e.prefabId == Obstacle.PrefabId)
+            {
+                CreateObstacle(e);
+            }
+        }
+    }
+
     public void Init(EnterRoom roomData)
     {
         var snapShot = JsonUtility.FromJson<SnapShot>(roomData.snapShot);
@@ -51,20 +68,38 @@ public class GameManager : MonoBehaviour
         var newObjects = new Dictionary<long, ClientObject>();
         foreach (var e in newEntities)
         {
-            var clientObj = Instantiate(object2Prefab, environment).GetComponent<ClientObject>();
-            clientObj.id = e.id;
-            var rot = Optimazation.DecompressRot(e.rotation);
-            var pos = Optimazation.DecompressPos2(e.position);
-            clientObj.transform.position = clientObj.desiredPosition = pos;
-            clientObj.transform.rotation = clientObj.desiredRotation = rot;
+            if (e.prefabId == ClientObject.PrefabId)
+            {
+                var clientObj = Instantiate(object2Prefab, environment).GetComponent<ClientObject>();
+                clientObj.id = e.id;
+                var rot = Optimazation.DecompressRot(e.rotation);
+                var pos = Optimazation.DecompressPos2(e.position);
+                clientObj.transform.position = clientObj.desiredPosition = pos;
+                clientObj.transform.rotation = clientObj.desiredRotation = rot;
 
-            remoteClient.AddObject(clientObj);
-            newObjects.Add(clientObj.id, clientObj);
+                remoteClient.AddObject(clientObj);
+                newObjects.Add(clientObj.id, clientObj);
+            }
+            else if(e.prefabId == Obstacle.PrefabId)
+            {
+                CreateObstacle(e);
+            }
         }
         for(int i = 0; i < roomData.ids.Count; i++)
         {
             newObjects[roomData.ids[i]].SetName(roomData.usernames[i]);
         }
+    }
+
+    private void CreateObstacle(NewEntity e)
+    {
+        var obsObj = Instantiate(obstaclePrefab, environment).GetComponent<Obstacle>();
+        var rot = Optimazation.DecompressRot(e.rotation);
+        var pos = Optimazation.DecompressPos2(e.position);
+        var bound = Optimazation.DecompressPos2(e.bound);
+        obsObj.transform.position = pos;
+        obsObj.transform.rotation = rot;
+        obsObj.transform.localScale = bound;
     }
 
     public void Join(Response response)
