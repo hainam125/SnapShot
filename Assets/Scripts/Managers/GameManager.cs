@@ -21,6 +21,9 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private RemoteClient remoteClient;
 
+    public List<Obstacle> obstacles = new List<Obstacle>();
+    public List<ClientObject> objects = new List<ClientObject>();
+
     private void Awake()
     {
         Instance = this;
@@ -79,6 +82,7 @@ public class GameManager : MonoBehaviour
 
                 remoteClient.AddObject(clientObj);
                 newObjects.Add(clientObj.id, clientObj);
+                objects.Add(clientObj);
             }
             else if(e.prefabId == Obstacle.PrefabId)
             {
@@ -100,6 +104,7 @@ public class GameManager : MonoBehaviour
         obsObj.transform.position = pos;
         obsObj.transform.rotation = rot;
         obsObj.transform.localScale = bound;
+        obstacles.Add(obsObj);
     }
 
     public void Join(Response response)

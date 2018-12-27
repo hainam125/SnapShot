@@ -21,7 +21,6 @@ public class ClientObject : MonoBehaviour
     }
 	
 	private void Update () {
-        //Debug.Log(desiredPosition);
         transform.rotation = Quaternion.Slerp(transform.rotation, desiredRotation, 0.5f);
         transform.position = Vector3.Lerp(transform.position, desiredPosition, 0.2f);
     }
@@ -34,22 +33,76 @@ public class ClientObject : MonoBehaviour
 
     public void Predict(KeyCode code)
     {
-        var speed = ServerObject.Speed;
-        switch (code) {
+        switch (code)
+        {
             case KeyCode.W:
-                desiredPosition += speed * deltaTime * transform.forward;
+                HandleMovement(1f);
                 break;
             case KeyCode.S:
-                desiredPosition -= speed * deltaTime * transform.forward;
+                HandleMovement(-1f);
                 break;
             case KeyCode.D:
-                transform.Rotate(ServerObject.RotateSpeed * deltaTime);
-                desiredRotation = transform.rotation;
+                HandleRotation(1f);
                 break;
             case KeyCode.A:
-                transform.Rotate(-ServerObject.RotateSpeed * deltaTime);
-                desiredRotation = transform.rotation;
+                HandleRotation(-1f);
                 break;
         }
+    }
+
+    private void HandleRotation(float direction)
+    {
+        var obstacles = GameManager.Instance.obstacles;
+        var objects = GameManager.Instance.objects;
+
+        Quaternion oldRot = transform.rotation;
+        transform.Rotate(ServerObject.RotateSpeed * deltaTime * direction);
+        desiredRotation = transform.rotation;
+
+        for (int i = 0; i < obstacles.Count; i++)
+        {
+            if (transform.CheckCollision(obstacles[i].transform, desiredPosition))
+            {
+                transform.rotation = oldRot;
+                desiredRotation = oldRot;
+                return;
+            }
+        }
+        for (int i = 0; i < objects.Count; i++)
+        {
+            if (objects[i] != this && transform.CheckCollision(objects[i].transform, desiredPosition, objects[i].desiredPosition))
+            {
+                transform.rotation = oldRot;
+                desiredRotation = oldRot;
+                return;
+            }
+        }
+    }
+
+    private void HandleMovement(float direction)
+    {
+        var obstacles = GameManager.Instance.obstacles;
+        var objects = GameManager.Instance.objects;
+        var speed = ServerObject.Speed;
+        Vector3 oldPos = desiredPosition;
+        desiredPosition += speed * deltaTime * transform.forward * direction;
+
+        for (int i = 0; i < obstacles.Count; i++)
+        {
+            if (transform.CheckCollision(obstacles[i].transform, desiredPosition))
+            {
+                desiredPosition = oldPos;
+                return;
+            }
+        }
+        for (int i = 0; i < objects.Count; i++)
+        {
+            if (objects[i] != this && transform.CheckCollision(objects[i].transform, desiredPosition, objects[i].desiredPosition))
+            {
+                desiredPosition = oldPos;
+                return;
+            }
+        }
+
     }
 }

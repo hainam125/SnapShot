@@ -19,6 +19,9 @@ public abstract class BaseClient : MonoBehaviour {
     protected Queue<SnapShot> snapShots = new Queue<SnapShot>();
     protected bool hasStartedProcessingSnapShot;
     protected bool isProcessingShapShot;
+    private long cachedCmdNo;
+    private Vector3 cachedPosition;
+    private Vector3 cachedRotation;
 
     private IEnumerator Start()
     {
@@ -34,38 +37,51 @@ public abstract class BaseClient : MonoBehaviour {
     {
         isProcessingShapShot = true;
         var snapShot = snapShots.Dequeue();
-        if (reconcilation && prediction && snapShot.commandId < commandSoFar)
-        {
-            isProcessingShapShot = false;
-            yield break;
-        }
         var entities = snapShot.existingEntities;
         for (int i = 0; i < entities.Count; i++)
         {
             long objId = entities[i].id;
-            var obj = objectDict[objId];
-            var rot = Optimazation.DecompressRot(entities[i].rotation);
-            var pos = Optimazation.DecompressPos2(entities[i].position);
-            if (entityInterpolation)
+
+            if (false && objectIndex == objId && reconcilation && prediction && cachedCmdNo == snapShot.commandId)
             {
-                float currentTime = 0f;
-                float maxTime = ServerDeltaTime;
-                var cRot = obj.transform.rotation;
-                var cPos = obj.transform.position;
-                while (currentTime < maxTime)
-                {
-                    currentTime += time;
-                    obj.desiredRotation = Quaternion.Slerp(cRot, rot, currentTime / ServerDeltaTime);
-                    obj.desiredPosition = Vector3.Lerp(cPos, pos, currentTime / ServerDeltaTime);
-                    yield return waitTime;
-                }
-                obj.desiredRotation = rot;
-                obj.desiredPosition = pos;
+                var rot = Optimazation.DecompressRot(entities[i].rotation);
+                var pos = Optimazation.DecompressPos2(entities[i].position);
+                var myObject = objectDict[objectIndex];
+                myObject.desiredPosition += (pos - cachedPosition);
+                myObject.desiredRotation = Quaternion.Euler(myObject.desiredRotation.eulerAngles + (rot.eulerAngles - cachedRotation));
+
+            }
+            if (objectIndex == objId && reconcilation && prediction && snapShot.commandId < commandSoFar)
+            {
+                isProcessingShapShot = false;
+                continue;
             }
             else
             {
-                obj.desiredRotation = obj.transform.rotation = rot;
-                obj.desiredPosition = obj.transform.position = pos;
+                var obj = objectDict[objId];
+                var rot = Optimazation.DecompressRot(entities[i].rotation);
+                var pos = Optimazation.DecompressPos2(entities[i].position);
+                if (entityInterpolation)
+                {
+                    float currentTime = 0f;
+                    float maxTime = ServerDeltaTime;
+                    var cRot = obj.transform.rotation;
+                    var cPos = obj.transform.position;
+                    while (currentTime < maxTime)
+                    {
+                        currentTime += time;
+                        obj.desiredRotation = Quaternion.Slerp(cRot, rot, currentTime / ServerDeltaTime);
+                        obj.desiredPosition = Vector3.Lerp(cPos, pos, currentTime / ServerDeltaTime);
+                        yield return waitTime;
+                    }
+                    obj.desiredRotation = rot;
+                    obj.desiredPosition = pos;
+                }
+                else
+                {
+                    obj.desiredRotation = obj.transform.rotation = rot;
+                    obj.desiredPosition = obj.transform.position = pos;
+                }
             }
         }
         if (snapShots.Count > 0) StartCoroutine(UpdateState());
@@ -96,7 +112,6 @@ public abstract class BaseClient : MonoBehaviour {
         else if (Input.GetKey(KeyCode.S)) SendDownCommand();
         if (Input.GetKey(KeyCode.D)) SendRightCommand();
         else if (Input.GetKey(KeyCode.A)) SendLeftCommand();
-        if (Input.GetKey(KeyCode.Space)) SendRotateCommand();
     }
 
     public abstract IEnumerator SendCommand(Command command);
@@ -105,34 +120,53 @@ public abstract class BaseClient : MonoBehaviour {
     {
         commandSoFar++;
         StartCoroutine(SendCommand(new Command(commandSoFar, currentTick, KeyCode.W)));
-        if (prediction) objectDict[objectIndex].Predict(KeyCode.W);
+        if (prediction)
+        {
+            objectDict[objectIndex].Predict(KeyCode.W);
+            CachedTransform();
+        }
     }
 
     private void SendDownCommand()
     {
         commandSoFar++;
         StartCoroutine(SendCommand(new Command(commandSoFar, currentTick, KeyCode.S)));
-        if (prediction) objectDict[objectIndex].Predict(KeyCode.S);
+        if (prediction)
+        {
+            objectDict[objectIndex].Predict(KeyCode.S);
+            CachedTransform();
+        }
     }
 
     private void SendLeftCommand()
     {
         commandSoFar++;
         StartCoroutine(SendCommand(new Command(commandSoFar, currentTick, KeyCode.A)));
-        if (prediction) objectDict[objectIndex].Predict(KeyCode.A);
+        if (prediction)
+        {
+            objectDict[objectIndex].Predict(KeyCode.A);
+            CachedTransform();
+        }
     }
 
     private void SendRightCommand()
     {
         commandSoFar++;
         StartCoroutine(SendCommand(new Command(commandSoFar, currentTick, KeyCode.D)));
-        if (prediction) objectDict[objectIndex].Predict(KeyCode.D);
+        if (prediction)
+        {
+            objectDict[objectIndex].Predict(KeyCode.D);
+            CachedTransform();
+        }
     }
 
-    private void SendRotateCommand()
+    private void CachedTransform()
     {
-        commandSoFar++;
-        StartCoroutine(SendCommand(new Command(commandSoFar, currentTick, KeyCode.Space)));
-        if (prediction) objectDict[objectIndex].Predict(KeyCode.Space);
+        if (commandSoFar % 5 == 0)
+        {
+            cachedCmdNo = commandSoFar;
+            cachedPosition = objectDict[objectIndex].desiredPosition;
+            cachedRotation = objectDict[objectIndex].desiredRotation.eulerAngles;
+        }
     }
 }

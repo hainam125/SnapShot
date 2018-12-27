@@ -3754,6 +3754,8 @@ MonoBehaviour:
   obstaclePrefab: {fileID: 1343188629082634, guid: 136ad7f550a95df4eb58988fc546b6d7,
     type: 2}
   remoteClient: {fileID: 1006251203}
+  obstacles: []
+  objects: []
 --- !u!1 &1817160951
 GameObject:
   m_ObjectHideFlags: 0
