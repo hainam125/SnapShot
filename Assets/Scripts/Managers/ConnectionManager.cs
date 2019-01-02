@@ -1,4 +1,5 @@
 ﻿using NetworkMessage;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,23 +13,28 @@ public class ConnectionManager : MonoBehaviour
     private void Awake()
     {
         instance = this;
+        
+    }
 
+    private void ConnectTo(string url, Action onSuccess, Action onFail)
+    {
         api = new GameObject().AddComponent<WebSocketAPI>();
         api.SetCallback(str =>
         {
             ProcessResponse(str);
         }, () =>
         {
-            Debug.Log("Connected...!");
-            UniRx.MainThreadDispatcher.Send((object o) =>
-            {
-                UIManager.Instance.loginPanel.SetActive(true);
-            }, null);
+            onSuccess();
         }, () =>
         {
-            Debug.Log("Disconnected!");
+            onFail();
         });
-        api.Init("ws://localhost:9000/ws");
+        api.Init("ws://" + url + "/ws");
+    }
+
+    public static void Connect(string url, Action onSuccess, Action onFail)
+    {
+        instance.ConnectTo(url, onSuccess, onFail);
         //api.Init("wss://192.168.52.16/ws");
     }
 

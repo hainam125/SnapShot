@@ -86,7 +86,6 @@ public class ClientObject : MonoBehaviour
         var speed = ServerObject.Speed;
         Vector3 oldPos = desiredPosition;
         desiredPosition += speed * deltaTime * transform.forward * direction;
-        //transform.position = desiredPosition;
 
         for (int i = 0; i < obstacles.Count; i++)
         {
@@ -105,5 +104,43 @@ public class ClientObject : MonoBehaviour
             }
         }
 
+    }
+
+    private bool needUpdate;
+    private float currentUpTime;
+    private Vector3 startPos;
+    private Vector3 targetPos;
+    private Quaternion startRot;
+    private Quaternion targetRot;
+
+    public void PrepareUpdate(Vector3 pos, Quaternion rot)
+    {
+        needUpdate = true;
+        currentUpTime = 0f;
+        targetPos = pos;
+        startPos = transform.position;
+        startRot = transform.rotation;
+    }
+
+    public void GameUpdate(float deltaTime)
+    {
+        if (!needUpdate) return;
+        var totalTime = BaseClient.ServerDeltaTime;
+        if (currentUpTime < totalTime)
+        {
+            currentUpTime += deltaTime;
+            var nextTime = currentUpTime + deltaTime;
+            if (nextTime < totalTime)
+            {
+                transform.position = Vector3.Lerp(startPos, targetPos, currentUpTime / totalTime);
+                transform.rotation = Quaternion.Slerp(startRot, targetRot, currentUpTime / totalTime);
+            }
+            else
+            {
+                transform.position = targetPos;
+                transform.rotation = targetRot;
+                needUpdate = false;
+            }
+        }
     }
 }

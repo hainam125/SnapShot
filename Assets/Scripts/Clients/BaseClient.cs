@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using NetworkMessage;
 using UnityEngine;
+using UnityEngine.UI;
 
 public abstract class BaseClient : MonoBehaviour {
     public const int Tick = 50;
     protected const float time = 1.0f / Tick;
     public static float ServerDeltaTime;
     protected Dictionary<long, ClientObject> objectDict = new Dictionary<long, ClientObject>();
+    protected Dictionary<long, Projectile> projectileDict = new Dictionary<long, Projectile>();
     public long objectIndex;
     public bool prediction;
     public bool reconcilation;
@@ -23,28 +25,62 @@ public abstract class BaseClient : MonoBehaviour {
     private Vector3 cachedPosition;
     private Vector3 cachedRotation;
 
-    bool up;
-    bool down;
-    bool left;
-    bool right;
+    private bool up;
+    private bool down;
+    private bool left;
+    private bool right;
+    private bool fire;
 
-    void Update()
+    private bool pressUp;
+    private bool pressDown;
+    private bool pressLeft;
+    private bool pressRight;
+    private bool pressFire;
+
+    private const int fireRate = 1;
+    private float timeNextFire;
+
+    [SerializeField]
+    private Button buttonA;
+    [SerializeField]
+    private Button buttonD;
+    [SerializeField]
+    private Button buttonW;
+    [SerializeField]
+    private Button buttonS;
+    [SerializeField]
+    private Button buttonSpace;
+    
+    public void ToggleDown(bool r) { pressDown = r; }
+    public void ToggleUp(bool r) { pressUp = r; }
+    public void ToggleLeft(bool r) { pressLeft = r; }
+    public void ToggleRight(bool r) { pressRight = r; }
+    public void ToggleFire(bool r) { pressFire = r; }
+
+    private void Update()
     {
-        if (Input.GetKey(KeyCode.W))
+        if (Input.GetKey(KeyCode.W) || pressUp)
         {
             up = true;
         }
-        else if (Input.GetKey(KeyCode.S))
+        else if (Input.GetKey(KeyCode.S) || pressDown)
         {
             down = true;
         }
-        if (Input.GetKey(KeyCode.D))
+        if (Input.GetKey(KeyCode.D) || pressRight)
         {
             right = true;
         }
-        else if (Input.GetKey(KeyCode.A))
+        else if (Input.GetKey(KeyCode.A) || pressLeft)
         {
             left = true;
+        }
+        if (Input.GetKey(KeyCode.Space) || pressFire)
+        {
+            if (timeNextFire < Time.timeSinceLevelLoad) {
+                fire = true;
+                timeNextFire = Time.timeSinceLevelLoad + 1f / fireRate;
+            }
         }
     }
 
@@ -52,6 +88,14 @@ public abstract class BaseClient : MonoBehaviour {
     {
         currentTick++;
         InputUpdate();
+        foreach (var kv in objectDict)
+        {
+            kv.Value.GameUpdate(time);
+        }
+        foreach (var kv in projectileDict)
+        {
+            kv.Value.GameUpdate(time);
+        }
     }
 
     protected void ProcessInput()
@@ -76,15 +120,10 @@ public abstract class BaseClient : MonoBehaviour {
             left = false;
             SendLeftCommand();
         }
-    }
-
-    private IEnumerator Start1()
-    {
-        while (true)
+        if (fire)
         {
-            currentTick++;
-            InputUpdate();
-            yield return waitTime;
+            fire = false;
+            SendFiredCommand();
         }
     }
 
@@ -93,11 +132,43 @@ public abstract class BaseClient : MonoBehaviour {
         isProcessingShapShot = true;
         var snapShot = snapShots.Dequeue();
         var entities = snapShot.existingEntities;
+        var newEntities = snapShot.newEntities;
+        var moveEntities = snapShot.movingEntities;
+        var destroyEntities = snapShot.destroyedEntities;
+
+        for (int i = 0; i < destroyEntities.Count; i++)
+        {
+            Projectile obj = projectileDict[destroyEntities[i].id];
+            Destroy(obj.gameObject);
+            projectileDict.Remove(obj.id);
+        }
+
+        for (int i = 0; i < newEntities.Count; i++) {
+            Projectile projectile = GameManager.Instance.CreateProjectile(newEntities[i]);
+            projectileDict.Add(projectile.id, projectile);
+        }
+
+        for (int i = 0; i < moveEntities.Count; i++)
+        {
+            Projectile obj = projectileDict[moveEntities[i].id];
+            var rot = Optimazation.DecompressRot(moveEntities[i].rotation);
+            var pos = Optimazation.DecompressPos2(moveEntities[i].position);
+            if (entityInterpolation)
+            {
+                obj.PrepareUpdate(pos);
+            }
+            else
+            {
+                //obj.transform.rotation = /*obj.transform.rotation =*/ rot;
+                obj.transform.position = /*obj.transform.position = */ pos;
+            }
+        }
+
         for (int i = 0; i < entities.Count; i++)
         {
             long objId = entities[i].id;
 
-            if (false && objectIndex == objId && reconcilation && prediction && cachedCmdNo == snapShot.commandId)
+            /*if (false && objectIndex == objId && reconcilation && prediction && cachedCmdNo == snapShot.commandId)
             {
                 var rot = Optimazation.DecompressRot(entities[i].rotation);
                 var pos = Optimazation.DecompressPos2(entities[i].position);
@@ -105,7 +176,7 @@ public abstract class BaseClient : MonoBehaviour {
                 myObject.desiredPosition += (pos - cachedPosition);
                 myObject.desiredRotation = Quaternion.Euler(myObject.desiredRotation.eulerAngles + (rot.eulerAngles - cachedRotation));
 
-            }
+            }*/
 
             if (objectIndex == objId && reconcilation && prediction && snapShot.commandId < commandSoFar)
             {
@@ -119,19 +190,7 @@ public abstract class BaseClient : MonoBehaviour {
                 var pos = Optimazation.DecompressPos2(entities[i].position);
                 if (entityInterpolation && objectIndex != objId)
                 {
-                    float currentTime = 0f;
-                    float maxTime = ServerDeltaTime;
-                    var cRot = obj.transform.rotation;
-                    var cPos = obj.transform.position;
-                    while (currentTime < maxTime)
-                    {
-                        currentTime += time;
-                        obj.desiredRotation = Quaternion.Slerp(cRot, rot, currentTime / ServerDeltaTime);
-                        obj.desiredPosition = Vector3.Lerp(cPos, pos, currentTime / ServerDeltaTime);
-                        yield return waitTime;
-                    }
-                    obj.desiredRotation = rot;
-                    obj.desiredPosition = pos;
+                    obj.PrepareUpdate(pos, rot);
                 }
                 else
                 {
@@ -140,6 +199,7 @@ public abstract class BaseClient : MonoBehaviour {
                 }
             }
         }
+        yield return ServerDeltaTime;
         if (snapShots.Count > 0) StartCoroutine(UpdateState());
         else isProcessingShapShot = false;
     }
@@ -208,13 +268,23 @@ public abstract class BaseClient : MonoBehaviour {
         }
     }
 
+    private void SendFiredCommand()
+    {
+        commandSoFar++;
+        StartCoroutine(SendCommand(new Command(commandSoFar, currentTick, KeyCode.Space)));
+        if (prediction)
+        {
+            
+        }
+    }
+
     private void CachedTransform()
     {
-        if (commandSoFar % 5 == 0)
+        /*if (commandSoFar % 5 == 0)
         {
             cachedCmdNo = commandSoFar;
             cachedPosition = objectDict[objectIndex].desiredPosition;
             cachedRotation = objectDict[objectIndex].desiredRotation.eulerAngles;
-        }
+        }*/
     }
 }

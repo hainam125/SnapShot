@@ -19,6 +19,8 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private GameObject obstaclePrefab;
     [SerializeField]
+    private GameObject projectilePrefab;
+    [SerializeField]
     private RemoteClient remoteClient;
 
     public List<Obstacle> obstacles = new List<Obstacle>();
@@ -89,6 +91,10 @@ public class GameManager : MonoBehaviour
             {
                 CreateObstacle(e);
             }
+            else if(e.prefabId == 2)
+            {
+                Debug.Log("Projectile!!");
+            }
         }
         for(int i = 0; i < roomData.ids.Count; i++)
         {
@@ -106,6 +112,19 @@ public class GameManager : MonoBehaviour
         obsObj.transform.rotation = rot;
         obsObj.transform.localScale = bound;
         obstacles.Add(obsObj);
+    }
+
+    public Projectile CreateProjectile(NewEntity e)
+    {
+        var obsObj = Instantiate(projectilePrefab, environment).GetComponent<Projectile>();
+        var rot = Optimazation.DecompressRot(e.rotation);
+        var pos = Optimazation.DecompressPos2(e.position);
+        var bound = Optimazation.DecompressPos2(e.bound);
+        obsObj.id = e.id;
+        obsObj.transform.position = pos;
+        obsObj.transform.rotation = rot;
+        obsObj.transform.localScale = bound;
+        return obsObj;
     }
 
     public void Join(Response response)

@@ -40,6 +40,7 @@ namespace NetworkMessage
     {
         public List<NewEntity> newEntities;
         public List<ExistingEntity> existingEntities;
+        public List<ExistingEntity> movingEntities;
         public List<DestroyedEntity> destroyedEntities;
         public long commandId;
 

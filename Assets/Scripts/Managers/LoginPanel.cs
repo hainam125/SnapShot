@@ -8,7 +8,7 @@ public class LoginPanel : MonoBehaviour {
     [SerializeField]
     private InputField nameField;
 
-	private void Start () {
+    private void Start () {
         Action<Response> callback = (Response response) =>
         {
             var user = JsonUtility.FromJson<User>(response.data);
