@@ -26,6 +26,7 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
+        Application.targetFrameRate = 60;
         Instance = this;
         gameObject.SetActive(false);
         remoteClient.gameObject.SetActive(false);

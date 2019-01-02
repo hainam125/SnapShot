@@ -4,7 +4,7 @@ using NetworkMessage;
 using UnityEngine;
 
 public abstract class BaseClient : MonoBehaviour {
-    public const int Tick = 30;
+    public const int Tick = 50;
     protected const float time = 1.0f / Tick;
     public static float ServerDeltaTime;
     protected Dictionary<long, ClientObject> objectDict = new Dictionary<long, ClientObject>();
@@ -23,7 +23,62 @@ public abstract class BaseClient : MonoBehaviour {
     private Vector3 cachedPosition;
     private Vector3 cachedRotation;
 
-    private IEnumerator Start()
+    bool up;
+    bool down;
+    bool left;
+    bool right;
+
+    void Update()
+    {
+        if (Input.GetKey(KeyCode.W))
+        {
+            up = true;
+        }
+        else if (Input.GetKey(KeyCode.S))
+        {
+            down = true;
+        }
+        if (Input.GetKey(KeyCode.D))
+        {
+            right = true;
+        }
+        else if (Input.GetKey(KeyCode.A))
+        {
+            left = true;
+        }
+    }
+
+    private void FixedUpdate()
+    {
+        currentTick++;
+        InputUpdate();
+    }
+
+    protected void ProcessInput()
+    {
+        if (up)
+        {
+            up = false;
+            SendUpCommand();
+        }
+        else if (down)
+        {
+            down = false;
+            SendDownCommand();
+        }
+        if (right)
+        {
+            right = false;
+            SendRightCommand();
+        }
+        else if (left)
+        {
+            left = false;
+            SendLeftCommand();
+        }
+    }
+
+    private IEnumerator Start1()
     {
         while (true)
         {
@@ -62,7 +117,7 @@ public abstract class BaseClient : MonoBehaviour {
                 var obj = objectDict[objId];
                 var rot = Optimazation.DecompressRot(entities[i].rotation);
                 var pos = Optimazation.DecompressPos2(entities[i].position);
-                if (entityInterpolation)
+                if (entityInterpolation && objectIndex != objId)
                 {
                     float currentTime = 0f;
                     float maxTime = ServerDeltaTime;
@@ -80,8 +135,8 @@ public abstract class BaseClient : MonoBehaviour {
                 }
                 else
                 {
-                    obj.desiredRotation = obj.transform.rotation = rot;
-                    obj.desiredPosition = obj.transform.position = pos;
+                    obj.desiredRotation = /*obj.transform.rotation =*/ rot;
+                    obj.desiredPosition = /*obj.transform.position = */ pos;
                 }
             }
         }
@@ -106,15 +161,7 @@ public abstract class BaseClient : MonoBehaviour {
             StartCoroutine(UpdateState());
         }
     }
-
-    protected void ProcessInput()
-    {
-        if (Input.GetKey(KeyCode.W)) SendUpCommand();
-        else if (Input.GetKey(KeyCode.S)) SendDownCommand();
-        if (Input.GetKey(KeyCode.D)) SendRightCommand();
-        else if (Input.GetKey(KeyCode.A)) SendLeftCommand();
-    }
-
+    
     public abstract IEnumerator SendCommand(Command command);
 
     private void SendUpCommand()

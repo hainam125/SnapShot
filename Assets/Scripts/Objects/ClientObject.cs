@@ -21,8 +21,8 @@ public class ClientObject : MonoBehaviour
     }
 	
 	private void Update () {
-        transform.rotation = Quaternion.Slerp(transform.rotation, desiredRotation, 0.5f);
-        transform.position = Vector3.Lerp(transform.position, desiredPosition, 0.2f);
+        transform.rotation = desiredRotation;// Quaternion.Slerp(transform.rotation, desiredRotation, 0.5f);
+        transform.position = desiredPosition;// Vector3.Lerp(transform.position, desiredPosition, 0.2f);
     }
 
     public void SetName(string name)
@@ -86,6 +86,7 @@ public class ClientObject : MonoBehaviour
         var speed = ServerObject.Speed;
         Vector3 oldPos = desiredPosition;
         desiredPosition += speed * deltaTime * transform.forward * direction;
+        //transform.position = desiredPosition;
 
         for (int i = 0; i < obstacles.Count; i++)
         {

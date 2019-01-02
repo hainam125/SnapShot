@@ -15,7 +15,7 @@ public class RemoteClient : BaseClient
 
     private void Awake()
     {
-        ServerDeltaTime = 1f / 30f;
+        ServerDeltaTime = 1f / 15f;
 		predictionToggle.onValueChanged.AddListener(value => prediction = value);
 		reconcilationToggle.onValueChanged.AddListener(value => reconcilation = value);
 		interpolationToggle.onValueChanged.AddListener(value => entityInterpolation = value);
