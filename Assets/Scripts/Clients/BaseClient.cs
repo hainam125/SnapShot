@@ -51,6 +51,7 @@ public abstract class BaseClient : MonoBehaviour {
                 myObject.desiredRotation = Quaternion.Euler(myObject.desiredRotation.eulerAngles + (rot.eulerAngles - cachedRotation));
 
             }
+
             if (objectIndex == objId && reconcilation && prediction && snapShot.commandId < commandSoFar)
             {
                 isProcessingShapShot = false;
