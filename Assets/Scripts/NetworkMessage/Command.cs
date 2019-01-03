@@ -6,23 +6,44 @@ namespace NetworkMessage
 {
     public struct Command
     {
-        private static Dictionary<KeyCode, byte> map = new Dictionary<KeyCode, byte>()
+        public static Dictionary<KeyCode, byte> Keys = new Dictionary<KeyCode, byte>()
         {
-            { KeyCode.W, 0 },
-            { KeyCode.S, 1 },
-            { KeyCode.D, 2 },
-            { KeyCode.A, 3 },
-            { KeyCode.Space, 4 },
+            { KeyCode.W, 1 },
+            { KeyCode.S, 2 },
+            { KeyCode.D, 4 },
+            { KeyCode.A, 8 },
+            { KeyCode.Space, 16 },
         };
         public byte keyCode;
         public long id;
         public long tick;
 
-        public Command(long cmdId, long currentTick, KeyCode code)
+        public Command(long cmdId, long currentTick, byte code)
         {
             tick = currentTick;
             id = cmdId;
-            keyCode = map[code];
+            keyCode = code;
+        }
+
+        public bool hasUp()
+        {
+            return has(KeyCode.W);
+        }
+        public bool hasDown()
+        {
+            return has(KeyCode.S);
+        }
+        public bool hasLeft()
+        {
+            return has(KeyCode.A);
+        }
+        public bool hasRight()
+        {
+            return has(KeyCode.D);
+        }
+        private bool has(KeyCode key)
+        {
+            return (keyCode & Keys[key]) == Keys[key];
         }
     }
 }

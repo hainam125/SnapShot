@@ -100,31 +100,15 @@ public abstract class BaseClient : MonoBehaviour {
 
     protected void ProcessInput()
     {
-        if (up)
-        {
-            up = false;
-            SendUpCommand();
-        }
-        else if (down)
-        {
-            down = false;
-            SendDownCommand();
-        }
-        if (right)
-        {
-            right = false;
-            SendRightCommand();
-        }
-        else if (left)
-        {
-            left = false;
-            SendLeftCommand();
-        }
-        if (fire)
-        {
-            fire = false;
-            SendFiredCommand();
-        }
+        byte cmd = 0;
+        if (up) cmd |= Command.Keys[KeyCode.W];
+        else if (down) cmd |= Command.Keys[KeyCode.S];
+        if (right) cmd |= Command.Keys[KeyCode.D];
+        else if (left) cmd |= Command.Keys[KeyCode.A];
+        if(fire) cmd |= Command.Keys[KeyCode.Space];
+
+        SendCommand(cmd);
+        up = false;down = false;right = false; left = false; fire = false;
     }
 
     protected IEnumerator UpdateState()
@@ -199,7 +183,7 @@ public abstract class BaseClient : MonoBehaviour {
                 }
             }
         }
-        yield return ServerDeltaTime;
+        if (entityInterpolation) yield return ServerDeltaTime;
         if (snapShots.Count > 0) StartCoroutine(UpdateState());
         else isProcessingShapShot = false;
     }
@@ -224,57 +208,15 @@ public abstract class BaseClient : MonoBehaviour {
     
     public abstract IEnumerator SendCommand(Command command);
 
-    private void SendUpCommand()
+    private void SendCommand(byte cmd)
     {
         commandSoFar++;
-        StartCoroutine(SendCommand(new Command(commandSoFar, currentTick, KeyCode.W)));
+        var command = new Command(commandSoFar, currentTick, cmd);
+        StartCoroutine(SendCommand(command));
         if (prediction)
         {
-            objectDict[objectIndex].Predict(KeyCode.W);
+            objectDict[objectIndex].Predict(command);
             CachedTransform();
-        }
-    }
-
-    private void SendDownCommand()
-    {
-        commandSoFar++;
-        StartCoroutine(SendCommand(new Command(commandSoFar, currentTick, KeyCode.S)));
-        if (prediction)
-        {
-            objectDict[objectIndex].Predict(KeyCode.S);
-            CachedTransform();
-        }
-    }
-
-    private void SendLeftCommand()
-    {
-        commandSoFar++;
-        StartCoroutine(SendCommand(new Command(commandSoFar, currentTick, KeyCode.A)));
-        if (prediction)
-        {
-            objectDict[objectIndex].Predict(KeyCode.A);
-            CachedTransform();
-        }
-    }
-
-    private void SendRightCommand()
-    {
-        commandSoFar++;
-        StartCoroutine(SendCommand(new Command(commandSoFar, currentTick, KeyCode.D)));
-        if (prediction)
-        {
-            objectDict[objectIndex].Predict(KeyCode.D);
-            CachedTransform();
-        }
-    }
-
-    private void SendFiredCommand()
-    {
-        commandSoFar++;
-        StartCoroutine(SendCommand(new Command(commandSoFar, currentTick, KeyCode.Space)));
-        if (prediction)
-        {
-            
         }
     }
 

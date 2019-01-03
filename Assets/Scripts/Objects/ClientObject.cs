@@ -31,23 +31,12 @@ public class ClientObject : MonoBehaviour
         nameTxt.text = name;
     }
 
-    public void Predict(KeyCode code)
+    public void Predict(Command cmd)
     {
-        switch (code)
-        {
-            case KeyCode.W:
-                HandleMovement(1f);
-                break;
-            case KeyCode.S:
-                HandleMovement(-1f);
-                break;
-            case KeyCode.D:
-                HandleRotation(1f);
-                break;
-            case KeyCode.A:
-                HandleRotation(-1f);
-                break;
-        }
+        if(cmd.hasUp()) HandleMovement(1f);
+        else if(cmd.hasDown()) HandleMovement(-1f);
+        if (cmd.hasRight()) HandleRotation(1f);
+        else if (cmd.hasLeft()) HandleRotation(-1f);
     }
 
     private void HandleRotation(float direction)
