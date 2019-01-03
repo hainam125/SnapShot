@@ -17,6 +17,7 @@ namespace NetworkMessage
     [System.Serializable]
     public class ExistingEntity : Entity
     {
+        public int prefabId;
         public CompressRotation rotation;
         public CompressPosition2 position;
     }
@@ -40,7 +41,6 @@ namespace NetworkMessage
     {
         public List<NewEntity> newEntities;
         public List<ExistingEntity> existingEntities;
-        public List<ExistingEntity> movingEntities;
         public List<DestroyedEntity> destroyedEntities;
         public long commandId;
 

@@ -118,7 +118,6 @@ public abstract class BaseClient : MonoBehaviour {
         var snapShot = snapShots.Dequeue();
         var entities = snapShot.existingEntities;
         var newEntities = snapShot.newEntities;
-        var moveEntities = snapShot.movingEntities;
         var destroyEntities = snapShot.destroyedEntities;
 
         for (int i = 0; i < destroyEntities.Count; i++)
@@ -133,54 +132,55 @@ public abstract class BaseClient : MonoBehaviour {
             projectileDict.Add(projectile.id, projectile);
         }
 
-        for (int i = 0; i < moveEntities.Count; i++)
-        {
-            Projectile obj = projectileDict[moveEntities[i].id];
-            //var rot = Optimazation.DecompressRot(moveEntities[i].rotation);
-            var pos = Optimazation.DecompressPos2(moveEntities[i].position);
-            if (entityInterpolation)
-            {
-                obj.PrepareUpdate(pos);
-            }
-            else
-            {
-                //obj.transform.rotation = /*obj.transform.rotation =*/ rot;
-                obj.transform.position = /*obj.transform.position = */ pos;
-            }
-        }
-
         for (int i = 0; i < entities.Count; i++)
         {
-            long objId = entities[i].id;
-
-            /*if (false && objectIndex == objId && reconcilation && prediction && cachedCmdNo == snapShot.commandId)
+            if (entities[i].prefabId == Projectile.PrefabId)
             {
-                var rot = Optimazation.DecompressRot(entities[i].rotation);
+                Projectile obj = projectileDict[entities[i].id];
                 var pos = Optimazation.DecompressPos2(entities[i].position);
-                var myObject = objectDict[objectIndex];
-                myObject.desiredPosition += (pos - cachedPosition);
-                myObject.desiredRotation = Quaternion.Euler(myObject.desiredRotation.eulerAngles + (rot.eulerAngles - cachedRotation));
-
-            }*/
-
-            if (objectIndex == objId && reconcilation && prediction && snapShot.commandId < commandSoFar)
-            {
-                isProcessingShapShot = false;
-                continue;
-            }
-            else
-            {
-                var obj = objectDict[objId];
-                var rot = Optimazation.DecompressRot(entities[i].rotation);
-                var pos = Optimazation.DecompressPos2(entities[i].position);
-                if (entityInterpolation && objectIndex != objId)
+                if (entityInterpolation)
                 {
-                    obj.PrepareUpdate(pos, rot);
+                    obj.PrepareUpdate(pos);
                 }
                 else
                 {
-                    obj.desiredRotation = /*obj.transform.rotation =*/ rot;
-                    obj.desiredPosition = /*obj.transform.position = */ pos;
+                    obj.transform.position = /*obj.transform.position = */ pos;
+                }
+            }
+            else if (entities[i].prefabId == ClientObject.PrefabId)
+            {
+
+                long objId = entities[i].id;
+
+                /*if (false && objectIndex == objId && reconcilation && prediction && cachedCmdNo == snapShot.commandId)
+                {
+                    var rot = Optimazation.DecompressRot(entities[i].rotation);
+                    var pos = Optimazation.DecompressPos2(entities[i].position);
+                    var myObject = objectDict[objectIndex];
+                    myObject.desiredPosition += (pos - cachedPosition);
+                    myObject.desiredRotation = Quaternion.Euler(myObject.desiredRotation.eulerAngles + (rot.eulerAngles - cachedRotation));
+
+                }*/
+
+                if (objectIndex == objId && reconcilation && prediction && snapShot.commandId < commandSoFar)
+                {
+                    isProcessingShapShot = false;
+                    continue;
+                }
+                else
+                {
+                    var obj = objectDict[objId];
+                    var rot = Optimazation.DecompressRot(entities[i].rotation);
+                    var pos = Optimazation.DecompressPos2(entities[i].position);
+                    if (entityInterpolation && objectIndex != objId)
+                    {
+                        obj.PrepareUpdate(pos, rot);
+                    }
+                    else
+                    {
+                        obj.desiredRotation = /*obj.transform.rotation =*/ rot;
+                        obj.desiredPosition = /*obj.transform.position = */ pos;
+                    }
                 }
             }
         }
