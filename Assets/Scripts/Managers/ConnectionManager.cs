@@ -29,13 +29,13 @@ public class ConnectionManager : MonoBehaviour
         {
             onFail();
         });
-        api.Init("ws://" + url + "/ws");
+        api.Init(url);
     }
 
     public static void Connect(string url, Action onSuccess, Action onFail)
     {
         instance.ConnectTo(url, onSuccess, onFail);
-        //api.Init("wss://192.168.52.16/ws");
+        //instance.ConnectTo("wss://192.168.52.16/ws", onSuccess, onFail);
     }
 
     private void Update()

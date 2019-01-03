@@ -37,7 +37,7 @@ public abstract class BaseClient : MonoBehaviour {
     private bool pressRight;
     private bool pressFire;
 
-    private const int fireRate = 1;
+    private const int fireRate = 100;
     private float timeNextFire;
 
     [SerializeField]
@@ -107,6 +107,7 @@ public abstract class BaseClient : MonoBehaviour {
         else if (left) cmd |= Command.Keys[KeyCode.A];
         if(fire) cmd |= Command.Keys[KeyCode.Space];
 
+        if (cmd == 0) return;
         SendCommand(cmd);
         up = false;down = false;right = false; left = false; fire = false;
     }
