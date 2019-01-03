@@ -12,17 +12,32 @@ public class ClientObject : MonoBehaviour
     private static float deltaTime = 1f / LocalClient.Tick;
     public Quaternion desiredRotation;
     public Vector3 desiredPosition;
+    private bool isMine;
     [SerializeField]
     private Text nameTxt;
 
-    private void Awake () {
+    private BaseClient client;
+
+    private void Awake()
+    {
         desiredRotation = transform.rotation;
         desiredPosition = transform.position;
+
+        client = FindObjectOfType<BaseClient>();
     }
-	
-	private void Update () {
-        transform.rotation = desiredRotation;// Quaternion.Slerp(transform.rotation, desiredRotation, 0.5f);
-        transform.position = desiredPosition;// Vector3.Lerp(transform.position, desiredPosition, 0.2f);
+
+    private void Update()
+    {
+        if (isMine || !client.entityInterpolation)
+        {
+            transform.rotation = desiredRotation;// Quaternion.Slerp(transform.rotation, desiredRotation, 0.5f);
+            transform.position = desiredPosition;// Vector3.Lerp(transform.position, desiredPosition, 0.2f);
+        }
+    }
+
+    public void SetIsMine()
+    {
+        isMine = true;
     }
 
     public void SetName(string name)
@@ -92,7 +107,6 @@ public class ClientObject : MonoBehaviour
                 return;
             }
         }
-
     }
 
     private bool needUpdate;
@@ -107,6 +121,7 @@ public class ClientObject : MonoBehaviour
         needUpdate = true;
         currentUpTime = 0f;
         targetPos = pos;
+        targetRot = rot;
         startPos = transform.position;
         startRot = transform.rotation;
     }

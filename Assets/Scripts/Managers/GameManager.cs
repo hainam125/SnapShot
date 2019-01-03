@@ -46,6 +46,7 @@ public class GameManager : MonoBehaviour
         remoteClient.objectIndex = objectId;
         var clientObject = Instantiate(object1Prefab, environment).GetComponent<ClientObject>();
         clientObject.id = objectId;
+        clientObject.SetIsMine();
         clientObject.SetName(username);
 
         remoteClient.AddObject(clientObject);
@@ -56,7 +57,6 @@ public class GameManager : MonoBehaviour
         var snapShot = JsonUtility.FromJson<SnapShot>(createRoom.snapShot);
         Init(createRoom.objectId);
         var newEntities = snapShot.newEntities;
-        var newObjects = new Dictionary<long, ClientObject>();
         foreach (var e in newEntities)
         {
             if (e.prefabId == Obstacle.PrefabId)

@@ -13,7 +13,6 @@ public class ConnectionManager : MonoBehaviour
     private void Awake()
     {
         instance = this;
-        
     }
 
     private void ConnectTo(string url, Action onSuccess, Action onFail)

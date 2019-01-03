@@ -109,7 +109,7 @@ public abstract class BaseClient : MonoBehaviour {
 
         if (cmd == 0) return;
         SendCommand(cmd);
-        up = false;down = false;right = false; left = false; fire = false;
+        up = false; down = false; right = false; left = false; fire = false;
     }
 
     protected IEnumerator UpdateState()
@@ -136,7 +136,7 @@ public abstract class BaseClient : MonoBehaviour {
         for (int i = 0; i < moveEntities.Count; i++)
         {
             Projectile obj = projectileDict[moveEntities[i].id];
-            var rot = Optimazation.DecompressRot(moveEntities[i].rotation);
+            //var rot = Optimazation.DecompressRot(moveEntities[i].rotation);
             var pos = Optimazation.DecompressPos2(moveEntities[i].position);
             if (entityInterpolation)
             {
