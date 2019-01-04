@@ -6,10 +6,12 @@ using NetworkMessage;
 
 public class PlayerObject : MonoBehaviour
 {
+    private const int MaxHp = 5;
     public const int PrefabId = 0;
     public long id;
     public Quaternion desiredRotation;
     public Vector3 desiredPosition;
+    public int hp;
 
     private bool needUpdate;
     private float currentUpTime;
@@ -20,6 +22,8 @@ public class PlayerObject : MonoBehaviour
 
     [SerializeField]
     private Text nameTxt;
+    [SerializeField]
+    private RectTransform hpRect;
 
     private void Awake()
     {
@@ -37,6 +41,17 @@ public class PlayerObject : MonoBehaviour
     {
         nameTxt.transform.parent.gameObject.SetActive(true);
         nameTxt.text = name;
+    }
+
+    public void SetHp(int newHp = MaxHp)
+    {
+        if (newHp != hp)
+        {
+            if (hp <= 0 && newHp > 0) gameObject.SetActive(true);
+            hp = newHp;
+            hpRect.localScale = new Vector3(hp * 1f / MaxHp, 1f, 1f);
+            if (hp <= 0) gameObject.SetActive(false);
+        }
     }
 
     public void Predict(Command cmd)

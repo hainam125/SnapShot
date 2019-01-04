@@ -23,7 +23,7 @@ public class GameManager : MonoBehaviour
         remoteClient.gameObject.SetActive(false);
     }
 
-    public void Init(long objectId)
+    private void Init(long objectId)
     {
         gameObject.SetActive(true);
         remoteClient.gameObject.SetActive(true);
@@ -31,6 +31,7 @@ public class GameManager : MonoBehaviour
         var playerObject = ObjectFactory.CreatePlayer1Object();
         playerObject.id = objectId;
         playerObject.SetName(username);
+        playerObject.SetHp();
 
         remoteClient.AddObject(playerObject);
     }
@@ -54,18 +55,11 @@ public class GameManager : MonoBehaviour
         var snapShot = JsonUtility.FromJson<SnapShot>(roomData.snapShot);
         Init(roomData.objectId);
         var newEntities = snapShot.newEntities;
+        var newPlayers = snapShot.newPlayers;
         var newObjects = new Dictionary<long, PlayerObject>();
         foreach (var e in newEntities)
         {
-            if (e.prefabId == PlayerObject.PrefabId)
-            {
-                var playerObject = ObjectFactory.CreatePlayer2Object(e);
-
-                remoteClient.AddObject(playerObject);
-                newObjects.Add(playerObject.id, playerObject);
-                playerObjects.Add(playerObject);
-            }
-            else if(e.prefabId == Obstacle.PrefabId)
+            if (e.prefabId == Obstacle.PrefabId)
             {
                 obstacles.Add(ObjectFactory.CreateObstacle(e));
             }
@@ -74,7 +68,18 @@ public class GameManager : MonoBehaviour
                 remoteClient.AddProjectile(ObjectFactory.CreateProjectile(e));
             }
         }
-        for(int i = 0; i < roomData.ids.Count; i++)
+        foreach (var e in newPlayers)
+        {
+            if (e.prefabId == PlayerObject.PrefabId)
+            {
+                var playerObject = ObjectFactory.CreatePlayer2Object(e);
+                playerObject.SetHp(e.hp);
+                remoteClient.AddObject(playerObject);
+                newObjects.Add(playerObject.id, playerObject);
+                playerObjects.Add(playerObject);
+            }
+        }
+        for (int i = 0; i < roomData.ids.Count; i++)
         {
             newObjects[roomData.ids[i]].SetName(roomData.usernames[i]);
         }
@@ -87,6 +92,7 @@ public class GameManager : MonoBehaviour
         var playerObject = ObjectFactory.CreatePlayer2Object();
         playerObject.id = userJoined.objectId;
         playerObject.SetName(userJoined.username);
+        playerObject.SetHp();
         remoteClient.AddObject(playerObject);
         playerObjects.Add(playerObject);
     }

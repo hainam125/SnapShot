@@ -22,6 +22,12 @@ namespace NetworkMessage
     }
 
     [System.Serializable]
+    public class ExistingPlayer : ExistingEntity
+    {
+        public int hp;
+    }
+
+    [System.Serializable]
     public class DestroyedEntity : Entity
     {
     }
@@ -36,10 +42,18 @@ namespace NetworkMessage
     }
 
     [System.Serializable]
+    public class NewPlayer : NewEntity
+    {
+        public int hp;
+    }
+
+    [System.Serializable]
     public class SnapShot
     {
         public List<NewEntity> newEntities;
+        public List<NewPlayer> newPlayers;
         public List<ExistingEntity> existingEntities;
+        public List<ExistingPlayer> existingPlayers;
         public List<DestroyedEntity> destroyedEntities;
         public long commandId;
 
@@ -48,7 +62,9 @@ namespace NetworkMessage
             return new SnapShot()
             {
                 newEntities = newEntities,
+                newPlayers = newPlayers,
                 existingEntities = existingEntities,
+                existingPlayers = existingPlayers,
                 destroyedEntities = destroyedEntities,
                 commandId = commandId
             };

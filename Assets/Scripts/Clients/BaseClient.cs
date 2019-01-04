@@ -131,6 +131,7 @@ public abstract class BaseClient : MonoBehaviour {
         isProcessingShapShot = true;
         var snapShot = snapShots.Dequeue();
         var entities = snapShot.existingEntities;
+        var players = snapShot.existingPlayers;
         var newEntities = snapShot.newEntities;
         var destroyEntities = snapShot.destroyedEntities;
 
@@ -145,53 +146,52 @@ public abstract class BaseClient : MonoBehaviour {
 
         for (int i = 0; i < entities.Count; i++)
         {
-            if (entities[i].prefabId == Projectile.PrefabId)
+            Projectile obj = projectileDict[entities[i].id];
+            var pos = Optimazation.DecompressPos2(entities[i].position);
+            if (entityInterpolation)
             {
-                Projectile obj = projectileDict[entities[i].id];
-                var pos = Optimazation.DecompressPos2(entities[i].position);
-                if (entityInterpolation)
-                {
-                    obj.PrepareUpdate(pos);
-                }
-                else
-                {
-                    obj.transform.position = pos;
-                }
+                obj.PrepareUpdate(pos);
             }
-            else if (entities[i].prefabId == PlayerObject.PrefabId)
+            else
             {
+                obj.transform.position = pos;
+            }
+        }
 
-                long objId = entities[i].id;
+        for (int i = 0; i < players.Count; i++)
+        {
+            long objId = players[i].id;
+            var obj = playObjectDict[objId];
 
-                /*if (objectIndex == objId && reconcilation && prediction && cachedCmdNo == snapShot.commandId)
+            obj.SetHp(players[i].hp);
+
+            /*if (objectIndex == objId && reconcilation && prediction && cachedCmdNo == snapShot.commandId)
+            {
+                var rot = Optimazation.DecompressRot(entities[i].rotation);
+                var pos = Optimazation.DecompressPos2(entities[i].position);
+                var myObject = objectDict[objectIndex];
+                myObject.desiredPosition += (pos - cachedPosition);
+                myObject.desiredRotation = Quaternion.Euler(myObject.desiredRotation.eulerAngles + (rot.eulerAngles - cachedRotation));
+
+            }*/
+
+            if (objectIndex == objId && reconcilation && prediction && snapShot.commandId < commandSoFar)
+            {
+                isProcessingShapShot = false;
+                continue;
+            }
+            else
+            {
+                var rot = Optimazation.DecompressRot(players[i].rotation);
+                var pos = Optimazation.DecompressPos2(players[i].position);
+                if (entityInterpolation && objectIndex != objId)
                 {
-                    var rot = Optimazation.DecompressRot(entities[i].rotation);
-                    var pos = Optimazation.DecompressPos2(entities[i].position);
-                    var myObject = objectDict[objectIndex];
-                    myObject.desiredPosition += (pos - cachedPosition);
-                    myObject.desiredRotation = Quaternion.Euler(myObject.desiredRotation.eulerAngles + (rot.eulerAngles - cachedRotation));
-
-                }*/
-
-                if (objectIndex == objId && reconcilation && prediction && snapShot.commandId < commandSoFar)
-                {
-                    isProcessingShapShot = false;
-                    continue;
+                    obj.PrepareUpdate(pos, rot);
                 }
                 else
                 {
-                    var obj = playObjectDict[objId];
-                    var rot = Optimazation.DecompressRot(entities[i].rotation);
-                    var pos = Optimazation.DecompressPos2(entities[i].position);
-                    if (entityInterpolation && objectIndex != objId)
-                    {
-                        obj.PrepareUpdate(pos, rot);
-                    }
-                    else
-                    {
-                        obj.desiredRotation = rot;
-                        obj.desiredPosition = pos;
-                    }
+                    obj.desiredRotation = rot;
+                    obj.desiredPosition = pos;
                 }
             }
         }
