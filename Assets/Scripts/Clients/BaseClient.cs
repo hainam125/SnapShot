@@ -62,6 +62,10 @@ public abstract class BaseClient : MonoBehaviour {
     public void ToggleUp(bool r) { pressUp = r; }
     public void ToggleLeft(bool r) { pressLeft = r; }
     public void ToggleRight(bool r) { pressRight = r; }
+    public void ToggleUpRight(bool r) { pressUp = r; pressRight = r; }
+    public void ToggleUpLeft(bool r) { pressUp = r; pressLeft = r; }
+    public void ToggleDownRight(bool r) { pressDown = r; pressRight = r; }
+    public void ToggleDownLeft(bool r) { pressDown = r; pressLeft = r; }
     public void ToggleFire(bool r) { pressFire = r; }
 
     private void Awake()
