@@ -112,6 +112,11 @@ public abstract class BaseClient : MonoBehaviour {
         }
     }
 
+    public PlayerObject MainPlayer()
+    {
+        return playObjectDict[objectIndex];
+    }
+
     protected void ProcessInput()
     {
         byte cmd = 0;
@@ -226,7 +231,7 @@ public abstract class BaseClient : MonoBehaviour {
         SendCommand(command);
         if (prediction)
         {
-            playObjectDict[objectIndex].Predict(command);
+            MainPlayer().Predict(command);
             CachedTransform();
         }
     }

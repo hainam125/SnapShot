@@ -24,6 +24,8 @@ public class PlayerObject : MonoBehaviour
     private Text nameTxt;
     [SerializeField]
     private RectTransform hpRect;
+    [SerializeField]
+    private GameObject mCamera;
 
     private void Awake()
     {
@@ -52,6 +54,11 @@ public class PlayerObject : MonoBehaviour
             hpRect.localScale = new Vector3(hp * 1f / MaxHp, 1f, 1f);
             if (hp <= 0) gameObject.SetActive(false);
         }
+    }
+
+    public void ToggleCamera(bool active)
+    {
+        mCamera.SetActive(active);
     }
 
     public void Predict(Command cmd)

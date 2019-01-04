@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using NetworkMessage;
 
 public class GameManager : MonoBehaviour
@@ -10,7 +11,11 @@ public class GameManager : MonoBehaviour
     public string username;
 
     [SerializeField]
+    private Toggle cameraToggle;
+    [SerializeField]
     private RemoteClient remoteClient;
+    [SerializeField]
+    private GameObject mCamera;
 
     public List<Obstacle> obstacles = new List<Obstacle>();
     public List<PlayerObject> playerObjects = new List<PlayerObject>();
@@ -21,6 +26,8 @@ public class GameManager : MonoBehaviour
         Instance = this;
         gameObject.SetActive(false);
         remoteClient.gameObject.SetActive(false);
+
+        cameraToggle.onValueChanged.AddListener(value => ToggleCamera(value));
     }
 
     private void Init(long objectId)
@@ -34,6 +41,7 @@ public class GameManager : MonoBehaviour
         playerObject.SetHp();
 
         remoteClient.AddObject(playerObject);
+        ToggleCamera(cameraToggle.isOn);
     }
 
     public void Init(CreateRoom createRoom)
@@ -109,5 +117,12 @@ public class GameManager : MonoBehaviour
     {
         var snapShot = JsonUtility.FromJson<SnapShot>(response.data);
         remoteClient.ReceiveSnapShot(snapShot);
+    }
+
+    public void ToggleCamera(bool isMain)
+    {
+        if (remoteClient.objectIndex < 0) return;
+        mCamera.SetActive(isMain);
+        remoteClient.MainPlayer().ToggleCamera(!isMain);
     }
 }
