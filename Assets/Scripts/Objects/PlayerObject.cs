@@ -65,6 +65,7 @@ public class PlayerObject : MonoBehaviour
                 return;
             }
         }
+
         for (int i = 0; i < objects.Count; i++)
         {
             if (objects[i] != this && transform.CheckCollision(objects[i].transform, desiredPosition, objects[i].desiredPosition))

@@ -246,10 +246,12 @@ public abstract class BaseClient : MonoBehaviour {
         playObjectDict.Add(playerObject.id, playerObject);
     }
 
-    public void RemoveObject(long objectId)
+    public PlayerObject RemoveObject(long objectId)
     {
-        Destroy(playObjectDict[objectId].gameObject);
+        var playerObject = playObjectDict[objectId];
+        Destroy(playerObject.gameObject);
         playObjectDict.Remove(objectId);
+        return playerObject;
     }
 
     public void AddProjectile(Projectile projectile)

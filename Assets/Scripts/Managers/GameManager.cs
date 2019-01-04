@@ -88,13 +88,15 @@ public class GameManager : MonoBehaviour
         playerObject.id = userJoined.objectId;
         playerObject.SetName(userJoined.username);
         remoteClient.AddObject(playerObject);
+        playerObjects.Add(playerObject);
     }
 
     public void Exit(Response response)
     {
-        var userJoined = JsonUtility.FromJson<UserExited>(response.data);
-        remoteClient.RemoveObject(userJoined.objectId);
-        Debug.Log("User exit: " + userJoined.username);
+        var userExited = JsonUtility.FromJson<UserExited>(response.data);
+        var player = remoteClient.RemoveObject(userExited.objectId);
+        playerObjects.Remove(player);
+        Debug.Log("User exit: " + userExited.username);
     }
 
     public void ReceiveSnapShot(Response response)
