@@ -31,7 +31,7 @@ public abstract class BaseClient : MonoBehaviour {
     private bool right;
     private bool fire;
 
-    private const int fireRate = 5;
+    private const int fireRate = 3;
     private float timeNextFire;
     
     [SerializeField]
