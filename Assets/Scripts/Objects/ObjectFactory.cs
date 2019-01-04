@@ -5,7 +5,11 @@ public class ObjectFactory : MonoBehaviour {
     private static ObjectFactory instance;
 
     [SerializeField]
-    private Transform environment;
+    private Transform projectiles;
+    [SerializeField]
+    private Transform players;
+    [SerializeField]
+    private Transform obstacles;
     [SerializeField]
     private GameObject object1Prefab;
     [SerializeField]
@@ -14,19 +18,19 @@ public class ObjectFactory : MonoBehaviour {
     private GameObject obstaclePrefab;
     [SerializeField]
     private GameObject projectilePrefab;
-
+   
     private void Awake () {
         instance = this;
     }
 
     public static PlayerObject CreatePlayer1Object()
     {
-        return Instantiate(instance.object1Prefab, instance.environment).GetComponent<PlayerObject>();
+        return Instantiate(instance.object1Prefab, instance.players).GetComponent<PlayerObject>();
     }
 
     public static PlayerObject CreatePlayer2Object()
     {
-        return Instantiate(instance.object2Prefab, instance.environment).GetComponent<PlayerObject>();
+        return Instantiate(instance.object2Prefab, instance.players).GetComponent<PlayerObject>();
     }
 
     public static PlayerObject CreatePlayer2Object(NewEntity e)
@@ -42,7 +46,7 @@ public class ObjectFactory : MonoBehaviour {
 
     public static Obstacle CreateObstacle(NewEntity e)
     {
-        var obstacle = Instantiate(instance.obstaclePrefab, instance.environment).GetComponent<Obstacle>();
+        var obstacle = Instantiate(instance.obstaclePrefab, instance.obstacles).GetComponent<Obstacle>();
         var rot = Optimazation.DecompressRot(e.rotation);
         var pos = Optimazation.DecompressPos2(e.position);
         var bound = Optimazation.DecompressPos2(e.bound);
@@ -54,7 +58,7 @@ public class ObjectFactory : MonoBehaviour {
 
     public static Projectile CreateProjectile(NewEntity e)
     {
-        var projectile = Instantiate(instance.projectilePrefab, instance.environment).GetComponent<Projectile>();
+        var projectile = Instantiate(instance.projectilePrefab, instance.projectiles).GetComponent<Projectile>();
         var rot = Optimazation.DecompressRot(e.rotation);
         var pos = Optimazation.DecompressPos2(e.position);
         var bound = Optimazation.DecompressPos2(e.bound);
