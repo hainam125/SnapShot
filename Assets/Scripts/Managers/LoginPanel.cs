@@ -11,7 +11,7 @@ public class LoginPanel : MonoBehaviour {
     private void Start () {
         Action<Response> callback = (Response response) =>
         {
-            var user = JsonUtility.FromJson<User>(response.data);
+            var user = JsonUtility.FromJson<UserData>(response.data);
             //Debug.Log("login successfully!: " + user.id);
             loginBtn.interactable = true;
             gameObject.SetActive(false);
@@ -23,8 +23,8 @@ public class LoginPanel : MonoBehaviour {
         {
             string loginName = nameField.text;
             if (string.IsNullOrEmpty(loginName)) return;
-            var user = new User(loginName);
-            ConnectionManager.Send(new Request(JsonUtility.ToJson(user), typeof(User).ToString(), callback));
+            var user = new UserData(loginName);
+            ConnectionManager.Send(new Request(JsonUtility.ToJson(user), typeof(UserData).ToString(), callback));
             nameField.text = string.Empty;
             loginBtn.interactable = false;
         });

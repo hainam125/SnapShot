@@ -6,14 +6,14 @@ using UnityEngine;
 public class LocalClient : BaseClient
 {
     public float delayTime = 0.1f;
-    public List<ClientObject> syncObjects;
+    public List<PlayerObject> playerObjects;
     private LocalServer server;
 
-    private void Awake()
+    private void Start()
     {
         server = FindObjectOfType<LocalServer>();
         ServerDeltaTime = 1f / server.tick;
-        foreach (var o in syncObjects) objectDict.Add(o.id, o);
+        foreach (var o in playerObjects) playObjectDict.Add(o.id, o);
     }
 
     protected override void InputUpdate()
@@ -30,7 +30,12 @@ public class LocalClient : BaseClient
         ProcessSnapShot(snapShot);
     }
 
-    public override IEnumerator SendCommand(Command command)
+    protected override void SendCommand(Command command)
+    {
+        StartCoroutine(SendCommandWithDelay(command));
+    }
+
+    private IEnumerator SendCommandWithDelay(Command command)
     {
         yield return new WaitForSeconds(delayTime);
         server.ReceiveCommand((int)objectIndex, command);

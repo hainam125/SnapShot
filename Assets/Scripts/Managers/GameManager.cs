@@ -1,8 +1,7 @@
-﻿using NetworkMessage;
-using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using NetworkMessage;
 
 public class GameManager : MonoBehaviour
 {
@@ -10,21 +9,11 @@ public class GameManager : MonoBehaviour
 
     public string username;
 
-[	SerializeField]
-	private Transform environment;
-    [SerializeField]
-    private GameObject object1Prefab;
-    [SerializeField]
-    private GameObject object2Prefab;
-    [SerializeField]
-    private GameObject obstaclePrefab;
-    [SerializeField]
-    private GameObject projectilePrefab;
     [SerializeField]
     private RemoteClient remoteClient;
 
     public List<Obstacle> obstacles = new List<Obstacle>();
-    public List<ClientObject> objects = new List<ClientObject>();
+    public List<PlayerObject> playerObjects = new List<PlayerObject>();
 
     private void Awake()
     {
@@ -34,22 +23,16 @@ public class GameManager : MonoBehaviour
         remoteClient.gameObject.SetActive(false);
     }
 
-    private void Update()
-    {
-
-    }
-
     public void Init(long objectId)
     {
         gameObject.SetActive(true);
         remoteClient.gameObject.SetActive(true);
         remoteClient.objectIndex = objectId;
-        var clientObject = Instantiate(object1Prefab, environment).GetComponent<ClientObject>();
-        clientObject.id = objectId;
-        clientObject.SetIsMine();
-        clientObject.SetName(username);
+        var playerObject = ObjectFactory.CreatePlayer1Object();
+        playerObject.id = objectId;
+        playerObject.SetName(username);
 
-        remoteClient.AddObject(clientObject);
+        remoteClient.AddObject(playerObject);
     }
 
     public void Init(CreateRoom createRoom)
@@ -61,7 +44,7 @@ public class GameManager : MonoBehaviour
         {
             if (e.prefabId == Obstacle.PrefabId)
             {
-                CreateObstacle(e);
+                obstacles.Add(ObjectFactory.CreateObstacle(e));
             }
         }
     }
@@ -71,29 +54,24 @@ public class GameManager : MonoBehaviour
         var snapShot = JsonUtility.FromJson<SnapShot>(roomData.snapShot);
         Init(roomData.objectId);
         var newEntities = snapShot.newEntities;
-        var newObjects = new Dictionary<long, ClientObject>();
+        var newObjects = new Dictionary<long, PlayerObject>();
         foreach (var e in newEntities)
         {
-            if (e.prefabId == ClientObject.PrefabId)
+            if (e.prefabId == PlayerObject.PrefabId)
             {
-                var clientObj = Instantiate(object2Prefab, environment).GetComponent<ClientObject>();
-                clientObj.id = e.id;
-                var rot = Optimazation.DecompressRot(e.rotation);
-                var pos = Optimazation.DecompressPos2(e.position);
-                clientObj.transform.position = clientObj.desiredPosition = pos;
-                clientObj.transform.rotation = clientObj.desiredRotation = rot;
+                var playerObject = ObjectFactory.CreatePlayer2Object(e);
 
-                remoteClient.AddObject(clientObj);
-                newObjects.Add(clientObj.id, clientObj);
-                objects.Add(clientObj);
+                remoteClient.AddObject(playerObject);
+                newObjects.Add(playerObject.id, playerObject);
+                playerObjects.Add(playerObject);
             }
             else if(e.prefabId == Obstacle.PrefabId)
             {
-                CreateObstacle(e);
+                obstacles.Add(ObjectFactory.CreateObstacle(e));
             }
-            else if(e.prefabId == 2)
+            else if(e.prefabId == Projectile.PrefabId)
             {
-                Debug.Log("Projectile!!");
+                remoteClient.AddProjectile(ObjectFactory.CreateProjectile(e));
             }
         }
         for(int i = 0; i < roomData.ids.Count; i++)
@@ -102,39 +80,14 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void CreateObstacle(NewEntity e)
-    {
-        var obsObj = Instantiate(obstaclePrefab, environment).GetComponent<Obstacle>();
-        var rot = Optimazation.DecompressRot(e.rotation);
-        var pos = Optimazation.DecompressPos2(e.position);
-        var bound = Optimazation.DecompressPos2(e.bound);
-        obsObj.transform.position = pos;
-        obsObj.transform.rotation = rot;
-        obsObj.transform.localScale = bound;
-        obstacles.Add(obsObj);
-    }
-
-    public Projectile CreateProjectile(NewEntity e)
-    {
-        var obsObj = Instantiate(projectilePrefab, environment).GetComponent<Projectile>();
-        var rot = Optimazation.DecompressRot(e.rotation);
-        var pos = Optimazation.DecompressPos2(e.position);
-        var bound = Optimazation.DecompressPos2(e.bound);
-        obsObj.id = e.id;
-        obsObj.transform.position = pos;
-        obsObj.transform.rotation = rot;
-        obsObj.transform.localScale = bound;
-        return obsObj;
-    }
-
     public void Join(Response response)
     {
         var userJoined = JsonUtility.FromJson<UserJoined>(response.data);
         Debug.Log("User joined: " + userJoined.username);
-        var clientObject = Instantiate(object2Prefab, environment).GetComponent<ClientObject>();
-        clientObject.id = userJoined.objectId;
-        clientObject.SetName(userJoined.username);
-        remoteClient.AddObject(clientObject);
+        var playerObject = ObjectFactory.CreatePlayer2Object();
+        playerObject.id = userJoined.objectId;
+        playerObject.SetName(userJoined.username);
+        remoteClient.AddObject(playerObject);
     }
 
     public void Exit(Response response)

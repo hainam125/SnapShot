@@ -1,7 +1,7 @@
-﻿using NetworkMessage;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using NetworkMessage;
 
 public class ConnectionManager : MonoBehaviour
 {
@@ -13,6 +13,27 @@ public class ConnectionManager : MonoBehaviour
     private void Awake()
     {
         instance = this;
+    }
+
+    private void Update()
+    {
+        if (requests.Count > 0)
+        {
+            var request = requests.Dequeue();
+            api.SendMsg(JsonUtility.ToJson(request));
+            if (request.id > 0) waitingRequests.Add(request.id, request);
+        }
+    }
+
+    public static void Connect(string url, Action onSuccess, Action onFail)
+    {
+        instance.ConnectTo(url, onSuccess, onFail);
+        //instance.ConnectTo("wss://192.168.52.16/ws", onSuccess, onFail);
+    }
+
+    public static void Send(Request request)
+    {
+        instance.requests.Enqueue(request);
     }
 
     private void ConnectTo(string url, Action onSuccess, Action onFail)
@@ -29,22 +50,6 @@ public class ConnectionManager : MonoBehaviour
             onFail();
         });
         api.Init(url);
-    }
-
-    public static void Connect(string url, Action onSuccess, Action onFail)
-    {
-        instance.ConnectTo(url, onSuccess, onFail);
-        //instance.ConnectTo("wss://192.168.52.16/ws", onSuccess, onFail);
-    }
-
-    private void Update()
-    {
-        if(requests.Count > 0)
-        {
-            var request = requests.Dequeue();
-            api.SendMsg(JsonUtility.ToJson(request));
-            if(request.id > 0) waitingRequests.Add(request.id, request);
-        }
     }
 
     private void ProcessResponse(string data)
@@ -72,10 +77,5 @@ public class ConnectionManager : MonoBehaviour
             request.callback.Invoke(response);
             waitingRequests.Remove(response.id);
         }
-    }
-
-    public static void Send(Request request)
-    {
-        instance.requests.Enqueue(request);
     }
 }

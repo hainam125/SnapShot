@@ -1,43 +1,36 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using NetworkMessage;
 
-public class ClientObject : MonoBehaviour
+public class PlayerObject : MonoBehaviour
 {
     public const int PrefabId = 0;
     public long id;
-    private static float deltaTime = 1f / LocalClient.Tick;
     public Quaternion desiredRotation;
     public Vector3 desiredPosition;
-    private bool isMine;
+
+    private bool needUpdate;
+    private float currentUpTime;
+    private Vector3 startPos;
+    private Vector3 targetPos;
+    private Quaternion startRot;
+    private Quaternion targetRot;
+
     [SerializeField]
     private Text nameTxt;
-
-    private BaseClient client;
 
     private void Awake()
     {
         desiredRotation = transform.rotation;
         desiredPosition = transform.position;
-
-        client = FindObjectOfType<BaseClient>();
     }
 
     private void Update()
     {
-        if (isMine || !client.entityInterpolation)
-        {
-            transform.rotation = desiredRotation;// Quaternion.Slerp(transform.rotation, desiredRotation, 0.5f);
-            transform.position = desiredPosition;// Vector3.Lerp(transform.position, desiredPosition, 0.2f);
-        }
-    }
-
-    public void SetIsMine()
-    {
-        isMine = true;
+        transform.rotation = desiredRotation;// Quaternion.Slerp(transform.rotation, desiredRotation, 0.5f);
+        transform.position = desiredPosition;// Vector3.Lerp(transform.position, desiredPosition, 0.2f);
     }
 
     public void SetName(string name)
@@ -48,19 +41,19 @@ public class ClientObject : MonoBehaviour
 
     public void Predict(Command cmd)
     {
-        if(cmd.hasUp()) HandleMovement(1f);
-        else if(cmd.hasDown()) HandleMovement(-1f);
-        if (cmd.hasRight()) HandleRotation(1f);
-        else if (cmd.hasLeft()) HandleRotation(-1f);
+        if(cmd.HasUp()) HandleMovement(1f);
+        else if(cmd.HasDown()) HandleMovement(-1f);
+        if (cmd.HasRight()) HandleRotation(1f);
+        else if (cmd.HasLeft()) HandleRotation(-1f);
     }
 
     private void HandleRotation(float direction)
     {
         var obstacles = GameManager.Instance.obstacles;
-        var objects = GameManager.Instance.objects;
+        var objects = GameManager.Instance.playerObjects;
 
         Quaternion oldRot = transform.rotation;
-        transform.Rotate(ServerObject.RotateSpeed * deltaTime * direction);
+        transform.Rotate(ServerObject.RotateSpeed * BaseClient.DeltaTime * direction);
         desiredRotation = transform.rotation;
 
         for (int i = 0; i < obstacles.Count; i++)
@@ -86,10 +79,10 @@ public class ClientObject : MonoBehaviour
     private void HandleMovement(float direction)
     {
         var obstacles = GameManager.Instance.obstacles;
-        var objects = GameManager.Instance.objects;
+        var objects = GameManager.Instance.playerObjects;
         var speed = ServerObject.Speed;
         Vector3 oldPos = desiredPosition;
-        desiredPosition += speed * deltaTime * transform.forward * direction;
+        desiredPosition += speed * BaseClient.DeltaTime * transform.forward * direction;
 
         for (int i = 0; i < obstacles.Count; i++)
         {
@@ -108,13 +101,6 @@ public class ClientObject : MonoBehaviour
             }
         }
     }
-
-    private bool needUpdate;
-    private float currentUpTime;
-    private Vector3 startPos;
-    private Vector3 targetPos;
-    private Quaternion startRot;
-    private Quaternion targetRot;
 
     public void PrepareUpdate(Vector3 pos, Quaternion rot)
     {
@@ -136,13 +122,13 @@ public class ClientObject : MonoBehaviour
             var nextTime = currentUpTime + deltaTime;
             if (nextTime < totalTime)
             {
-                transform.position = Vector3.Lerp(startPos, targetPos, currentUpTime / totalTime);
-                transform.rotation = Quaternion.Slerp(startRot, targetRot, currentUpTime / totalTime);
+                desiredPosition = Vector3.Lerp(startPos, targetPos, currentUpTime / totalTime);
+                desiredRotation = Quaternion.Slerp(startRot, targetRot, currentUpTime / totalTime);
             }
             else
             {
-                transform.position = targetPos;
-                transform.rotation = targetRot;
+                desiredPosition = targetPos;
+                desiredRotation = targetRot;
                 needUpdate = false;
             }
         }

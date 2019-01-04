@@ -5,22 +5,22 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public abstract class BaseClient : MonoBehaviour {
-    public const int Tick = 50;
-    protected const float time = 1.0f / Tick;
+    private const int Tick = 50;
+    public const float DeltaTime = 1.0f / Tick;
     public static float ServerDeltaTime;
-    protected Dictionary<long, ClientObject> objectDict = new Dictionary<long, ClientObject>();
+    protected Dictionary<long, PlayerObject> playObjectDict = new Dictionary<long, PlayerObject>();
     protected Dictionary<long, Projectile> projectileDict = new Dictionary<long, Projectile>();
     public long objectIndex;
-    public bool prediction;
-    public bool reconcilation;
-    public bool entityInterpolation;
+    private bool prediction;
+    private bool reconcilation;
+    private bool entityInterpolation;
+    private long commandSoFar = 0;
     private long currentTick;
-    protected long commandSoFar = 0;
-    protected WaitForSeconds waitTime = new WaitForSeconds(time);
 
     protected Queue<SnapShot> snapShots = new Queue<SnapShot>();
     protected bool hasStartedProcessingSnapShot;
     protected bool isProcessingShapShot;
+
     private long cachedCmdNo;
     private Vector3 cachedPosition;
     private Vector3 cachedRotation;
@@ -31,14 +31,15 @@ public abstract class BaseClient : MonoBehaviour {
     private bool right;
     private bool fire;
 
-    private bool pressUp;
-    private bool pressDown;
-    private bool pressLeft;
-    private bool pressRight;
-    private bool pressFire;
-
-    private const int fireRate = 100;
+    private const int fireRate = 5;
     private float timeNextFire;
+    
+    [SerializeField]
+    private Toggle predictionToggle;
+    [SerializeField]
+    private Toggle reconcilationToggle;
+    [SerializeField]
+    private Toggle interpolationToggle;
 
     [SerializeField]
     private Button buttonA;
@@ -50,12 +51,25 @@ public abstract class BaseClient : MonoBehaviour {
     private Button buttonS;
     [SerializeField]
     private Button buttonSpace;
-    
+
+    private bool pressUp;
+    private bool pressDown;
+    private bool pressLeft;
+    private bool pressRight;
+    private bool pressFire;
+
     public void ToggleDown(bool r) { pressDown = r; }
     public void ToggleUp(bool r) { pressUp = r; }
     public void ToggleLeft(bool r) { pressLeft = r; }
     public void ToggleRight(bool r) { pressRight = r; }
     public void ToggleFire(bool r) { pressFire = r; }
+
+    private void Awake()
+    {
+        predictionToggle.onValueChanged.AddListener(value => prediction = value);
+        reconcilationToggle.onValueChanged.AddListener(value => reconcilation = value);
+        interpolationToggle.onValueChanged.AddListener(value => entityInterpolation = value);
+    }
 
     private void Update()
     {
@@ -88,13 +102,13 @@ public abstract class BaseClient : MonoBehaviour {
     {
         currentTick++;
         InputUpdate();
-        foreach (var kv in objectDict)
+        foreach (var kv in playObjectDict)
         {
-            kv.Value.GameUpdate(time);
+            kv.Value.GameUpdate(DeltaTime);
         }
         foreach (var kv in projectileDict)
         {
-            kv.Value.GameUpdate(time);
+            kv.Value.GameUpdate(DeltaTime);
         }
     }
 
@@ -122,14 +136,11 @@ public abstract class BaseClient : MonoBehaviour {
 
         for (int i = 0; i < destroyEntities.Count; i++)
         {
-            Projectile obj = projectileDict[destroyEntities[i].id];
-            Destroy(obj.gameObject);
-            projectileDict.Remove(obj.id);
+            RemoveProjectile(projectileDict[destroyEntities[i].id]);
         }
 
         for (int i = 0; i < newEntities.Count; i++) {
-            Projectile projectile = GameManager.Instance.CreateProjectile(newEntities[i]);
-            projectileDict.Add(projectile.id, projectile);
+            AddProjectile(ObjectFactory.CreateProjectile(newEntities[i]));
         }
 
         for (int i = 0; i < entities.Count; i++)
@@ -144,15 +155,15 @@ public abstract class BaseClient : MonoBehaviour {
                 }
                 else
                 {
-                    obj.transform.position = /*obj.transform.position = */ pos;
+                    obj.transform.position = pos;
                 }
             }
-            else if (entities[i].prefabId == ClientObject.PrefabId)
+            else if (entities[i].prefabId == PlayerObject.PrefabId)
             {
 
                 long objId = entities[i].id;
 
-                /*if (false && objectIndex == objId && reconcilation && prediction && cachedCmdNo == snapShot.commandId)
+                /*if (objectIndex == objId && reconcilation && prediction && cachedCmdNo == snapShot.commandId)
                 {
                     var rot = Optimazation.DecompressRot(entities[i].rotation);
                     var pos = Optimazation.DecompressPos2(entities[i].position);
@@ -169,7 +180,7 @@ public abstract class BaseClient : MonoBehaviour {
                 }
                 else
                 {
-                    var obj = objectDict[objId];
+                    var obj = playObjectDict[objId];
                     var rot = Optimazation.DecompressRot(entities[i].rotation);
                     var pos = Optimazation.DecompressPos2(entities[i].position);
                     if (entityInterpolation && objectIndex != objId)
@@ -178,21 +189,18 @@ public abstract class BaseClient : MonoBehaviour {
                     }
                     else
                     {
-                        obj.desiredRotation = /*obj.transform.rotation =*/ rot;
-                        obj.desiredPosition = /*obj.transform.position = */ pos;
+                        obj.desiredRotation = rot;
+                        obj.desiredPosition = pos;
                     }
                 }
             }
         }
+
         if (entityInterpolation) yield return ServerDeltaTime;
         if (snapShots.Count > 0) StartCoroutine(UpdateState());
         else isProcessingShapShot = false;
     }
-
-    protected virtual void InputUpdate()
-    {
-    }
-
+    
     protected void ProcessSnapShot(SnapShot snapShot)
     {
         snapShots.Enqueue(snapShot);
@@ -206,17 +214,19 @@ public abstract class BaseClient : MonoBehaviour {
             StartCoroutine(UpdateState());
         }
     }
-    
-    public abstract IEnumerator SendCommand(Command command);
+
+    protected abstract void InputUpdate();
+
+    protected abstract void SendCommand(Command command);
 
     private void SendCommand(byte cmd)
     {
         commandSoFar++;
         var command = new Command(commandSoFar, currentTick, cmd);
-        StartCoroutine(SendCommand(command));
+        SendCommand(command);
         if (prediction)
         {
-            objectDict[objectIndex].Predict(command);
+            playObjectDict[objectIndex].Predict(command);
             CachedTransform();
         }
     }
@@ -229,5 +239,27 @@ public abstract class BaseClient : MonoBehaviour {
             cachedPosition = objectDict[objectIndex].desiredPosition;
             cachedRotation = objectDict[objectIndex].desiredRotation.eulerAngles;
         }*/
+    }
+
+    public void AddObject(PlayerObject playerObject)
+    {
+        playObjectDict.Add(playerObject.id, playerObject);
+    }
+
+    public void RemoveObject(long objectId)
+    {
+        Destroy(playObjectDict[objectId].gameObject);
+        playObjectDict.Remove(objectId);
+    }
+
+    public void AddProjectile(Projectile projectile)
+    {
+        projectileDict.Add(projectile.id, projectile);
+    }
+
+    public void RemoveProjectile(Projectile projectile)
+    {
+        Destroy(projectile.gameObject);
+        projectileDict.Remove(projectile.id);
     }
 }

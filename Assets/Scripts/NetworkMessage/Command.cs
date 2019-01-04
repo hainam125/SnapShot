@@ -14,6 +14,7 @@ namespace NetworkMessage
             { KeyCode.A, 8 },
             { KeyCode.Space, 16 },
         };
+
         public byte keyCode;
         public long id;
         public long tick;
@@ -25,25 +26,14 @@ namespace NetworkMessage
             keyCode = code;
         }
 
-        public bool hasUp()
-        {
-            return has(KeyCode.W);
-        }
-        public bool hasDown()
-        {
-            return has(KeyCode.S);
-        }
-        public bool hasLeft()
-        {
-            return has(KeyCode.A);
-        }
-        public bool hasRight()
-        {
-            return has(KeyCode.D);
-        }
-        private bool has(KeyCode key)
-        {
-            return (keyCode & Keys[key]) == Keys[key];
-        }
+        public bool HasUp() { return Has(KeyCode.W); }
+
+        public bool HasDown() { return Has(KeyCode.S); }
+
+        public bool HasLeft() { return Has(KeyCode.A); }
+
+        public bool HasRight() { return Has(KeyCode.D); }
+
+        private bool Has(KeyCode key) { return (keyCode & Keys[key]) == Keys[key]; }
     }
 }

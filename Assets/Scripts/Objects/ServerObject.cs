@@ -9,7 +9,6 @@ public class ServerObject : MonoBehaviour
     public long id;
     public static Vector3 RotateSpeed = new Vector3(0, 100f, 0);
     public const float Speed = 7f;
-    private static float deltaTime = 1f / LocalClient.Tick;
     public bool isDirty;
     private Queue<Command> commands = new Queue<Command>();
 
@@ -28,6 +27,7 @@ public class ServerObject : MonoBehaviour
     private void HandleCommand(Command command)
     {
         isDirty = true;
+        var deltaTime = BaseClient.DeltaTime;
         switch (command.keyCode)
         {
             case 0:
