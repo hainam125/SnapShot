@@ -12,17 +12,9 @@ public class WebSocketAPI : MonoBehaviour
     private Action OnDisconnect = delegate { };
     private Action<string> OnGetMessage = delegate { };
 
-    public bool SendMsg(string msg)
+    public void SendMsg(string msg)
     {
-        if (ws.IsAlive)
-        {
-            ws.Send(msg);
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        ws.SendAsync(msg, null);
     }
 
     public void SetCallback(Action<string> onGetMessage, Action onConnect, Action onDisconnect)

@@ -7,7 +7,7 @@ using UnityEngine;
 public class ServerObject : MonoBehaviour
 {
     public long id;
-    public static Vector3 RotateSpeed = new Vector3(0, 100f, 0);
+    public static Vector3 RotateSpeed = new Vector3(0, 70f, 0);
     public const float Speed = 7f;
     public bool isDirty;
     private Queue<Command> commands = new Queue<Command>();

@@ -56,6 +56,11 @@ public class PlayerObject : MonoBehaviour
         }
     }
 
+    public bool isAlive()
+    {
+        return hp > 0;
+    }
+
     public void ToggleCamera(bool active)
     {
         mCamera.SetActive(active);
@@ -90,7 +95,7 @@ public class PlayerObject : MonoBehaviour
 
         for (int i = 0; i < objects.Count; i++)
         {
-            if (objects[i] != this && transform.CheckCollision(objects[i].transform, desiredPosition, objects[i].desiredPosition))
+            if (objects[i] != this && objects[i].isAlive() && transform.CheckCollision(objects[i].transform, desiredPosition, objects[i].desiredPosition))
             {
                 transform.rotation = oldRot;
                 desiredRotation = oldRot;
@@ -117,7 +122,7 @@ public class PlayerObject : MonoBehaviour
         }
         for (int i = 0; i < objects.Count; i++)
         {
-            if (objects[i] != this && transform.CheckCollision(objects[i].transform, desiredPosition, objects[i].desiredPosition))
+            if (objects[i] != this && objects[i].isAlive() && transform.CheckCollision(objects[i].transform, desiredPosition, objects[i].desiredPosition))
             {
                 desiredPosition = oldPos;
                 return;
