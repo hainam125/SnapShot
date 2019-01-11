@@ -199,8 +199,9 @@ public abstract class BaseClient : MonoBehaviour {
                 }
                 else
                 {
-                    obj.desiredRotation = rot;
-                    obj.desiredPosition = pos;
+                    obj.PrepareUpdate(pos, rot);
+//                    obj.desiredRotation = rot;
+//                    obj.desiredPosition = pos;
                 }
             }
         }

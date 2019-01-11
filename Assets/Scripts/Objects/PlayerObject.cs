@@ -36,7 +36,24 @@ public class PlayerObject : MonoBehaviour
     private void Update()
     {
         transform.rotation = desiredRotation;// Quaternion.Slerp(transform.rotation, desiredRotation, 0.5f);
-        transform.position = desiredPosition;// Vector3.Lerp(transform.position, desiredPosition, 0.2f);
+        //transform.position = desiredPosition;// Vector3.Lerp(transform.position, desiredPosition, 0.2f);
+        UpdateMove(Time.deltaTime);
+    }
+    protected MoveTrajectory MoveTrajectory;
+    public void UpdateMove(float dt)
+    {
+        if (MoveTrajectory != null)
+        {
+            if (MoveTrajectory.IsDone)
+            {
+                MoveTrajectory = null;
+            }
+            else
+            {
+                var pos = MoveTrajectory.Update(dt);
+                transform.position = pos;
+            }
+        }
     }
 
     public void SetName(string name)
@@ -138,27 +155,32 @@ public class PlayerObject : MonoBehaviour
         targetRot = rot;
         startPos = transform.position;
         startRot = transform.rotation;
+        
+        desiredRotation = targetRot;
+        desiredPosition = targetPos;
+        
+        MoveTrajectory =  new MoveTrajectory(startPos,desiredPosition,ServerObject.Speed);
     }
 
     public void GameUpdate(float deltaTime)
     {
-        if (!needUpdate) return;
-        var totalTime = BaseClient.ServerDeltaTime;
-        if (currentUpTime < totalTime)
-        {
-            currentUpTime += deltaTime;
-            var nextTime = currentUpTime + deltaTime;
-            if (nextTime < totalTime)
-            {
-                desiredPosition = Vector3.Lerp(startPos, targetPos, currentUpTime / totalTime);
-                desiredRotation = Quaternion.Slerp(startRot, targetRot, currentUpTime / totalTime);
-            }
-            else
-            {
-                desiredPosition = targetPos;
-                desiredRotation = targetRot;
-                needUpdate = false;
-            }
-        }
+//        if (!needUpdate) return;
+//        var totalTime = BaseClient.ServerDeltaTime;
+//        if (currentUpTime < totalTime)
+//        {
+//            currentUpTime += deltaTime;
+//            var nextTime = currentUpTime + deltaTime;
+//            if (nextTime < totalTime)
+//            {
+//                desiredPosition = Vector3.Lerp(startPos, targetPos, currentUpTime / totalTime);
+//                desiredRotation = Quaternion.Slerp(startRot, targetRot, currentUpTime / totalTime);
+//            }
+//            else
+//            {
+//                desiredPosition = targetPos;
+//                desiredRotation = targetRot;
+//                needUpdate = false;
+//            }
+//        }
     }
 }
