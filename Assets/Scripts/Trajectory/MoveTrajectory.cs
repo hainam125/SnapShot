@@ -12,45 +12,49 @@ public class MoveTrajectory
     protected float speed = 0f;
     protected float spentTime = 0f;
     protected Vector3 direction = Vector3.zero;
+    private bool isDone = true;
     #endregion
 
     #region ===== Properties =====
+    public bool IsDone { get { return isDone; } }
 
-    public bool IsDone
+    public bool CheckDone
     {
-        get { return spentTime >= duration; }
-    }
-
-    public float Percent
-    {
-        get { return Mathf.Clamp01(spentTime / duration); }
+        get {
+            if (spentTime >= duration)
+            {
+                isDone = true;
+                return true;
+            }
+            return false;
+        }
     }
 
     #endregion
 
     #region ===== Methods =====
 
-    public MoveTrajectory(Vector3 start, Vector3 end, float speed)
+    public void Refresh(Vector3 begin, Vector3 finish, float spd)
     {
-        this.start = start;
-        this.end = end;
-        this.speed = speed;
-        this.position = start;
-        this.duration = Vector3.Distance(end,start)/speed;
-        this.spentTime = 0f;
-        this.direction = (end - start).normalized;
+        isDone = false;
+        start = begin;
+        end = finish;
+        position = start;
+        speed = spd;
+        duration = Vector3.Distance(end, start) / speed;
+        spentTime = 0f;
+        direction = (end - start).normalized;
     }
 
     public Vector3 Update(float dt)
     {
-        if (duration == 0)
-            return end;
+        if (duration == 0) return end;
 
         spentTime = Mathf.Min(spentTime + dt, duration);
 
         position += direction * dt * speed;
         
-        return IsDone ? end : position;
+        return CheckDone ? end : position;
     }
 
     #endregion

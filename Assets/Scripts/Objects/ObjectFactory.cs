@@ -39,8 +39,8 @@ public class ObjectFactory : MonoBehaviour {
         playerObject.id = e.id;
         var rot = Optimazation.DecompressRot(e.rotation);
         var pos = Optimazation.DecompressPos2(e.position);
-        playerObject.transform.position = playerObject.desiredPosition = pos;
-        playerObject.transform.rotation = playerObject.desiredRotation = rot;
+        playerObject.transform.position = pos;
+        playerObject.transform.rotation = rot;
         return playerObject;
     }
 

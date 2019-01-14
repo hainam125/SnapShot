@@ -9,16 +9,7 @@ public class PlayerObject : MonoBehaviour
     private const int MaxHp = 5;
     public const int PrefabId = 0;
     public long id;
-    public Quaternion desiredRotation;
-    public Vector3 desiredPosition;
     public int hp;
-
-    private bool needUpdate;
-    private float currentUpTime;
-    private Vector3 startPos;
-    private Vector3 targetPos;
-    private Quaternion startRot;
-    private Quaternion targetRot;
 
     [SerializeField]
     private Text nameTxt;
@@ -26,35 +17,6 @@ public class PlayerObject : MonoBehaviour
     private RectTransform hpRect;
     [SerializeField]
     private GameObject mCamera;
-
-    private void Awake()
-    {
-        desiredRotation = transform.rotation;
-        desiredPosition = transform.position;
-    }
-
-    private void Update()
-    {
-        transform.rotation = desiredRotation;// Quaternion.Slerp(transform.rotation, desiredRotation, 0.5f);
-        //transform.position = desiredPosition;// Vector3.Lerp(transform.position, desiredPosition, 0.2f);
-        UpdateMove(Time.deltaTime);
-    }
-    protected MoveTrajectory MoveTrajectory;
-    public void UpdateMove(float dt)
-    {
-        if (MoveTrajectory != null)
-        {
-            if (MoveTrajectory.IsDone)
-            {
-                MoveTrajectory = null;
-            }
-            else
-            {
-                var pos = MoveTrajectory.Update(dt);
-                transform.position = pos;
-            }
-        }
-    }
 
     public void SetName(string name)
     {
@@ -98,24 +60,21 @@ public class PlayerObject : MonoBehaviour
 
         Quaternion oldRot = transform.rotation;
         transform.Rotate(ServerObject.RotateSpeed * BaseClient.DeltaTime * direction);
-        desiredRotation = transform.rotation;
 
         for (int i = 0; i < obstacles.Count; i++)
         {
-            if (transform.CheckCollision(obstacles[i].transform, desiredPosition))
+            if (transform.CheckCollision(obstacles[i].transform, transform.position))
             {
                 transform.rotation = oldRot;
-                desiredRotation = oldRot;
                 return;
             }
         }
 
         for (int i = 0; i < objects.Count; i++)
         {
-            if (objects[i] != this && objects[i].isAlive() && transform.CheckCollision(objects[i].transform, desiredPosition, objects[i].desiredPosition))
+            if (objects[i] != this && objects[i].isAlive() && transform.CheckCollision(objects[i].transform, transform.position, objects[i].transform.position))
             {
                 transform.rotation = oldRot;
-                desiredRotation = oldRot;
                 return;
             }
         }
@@ -126,61 +85,43 @@ public class PlayerObject : MonoBehaviour
         var obstacles = GameManager.Instance.obstacles;
         var objects = GameManager.Instance.playerObjects;
         var speed = ServerObject.Speed;
-        Vector3 oldPos = desiredPosition;
-        desiredPosition += speed * BaseClient.DeltaTime * transform.forward * direction;
-
+        Vector3 oldPos = transform.position;
+        transform.position += speed * BaseClient.DeltaTime * transform.forward * direction;
         for (int i = 0; i < obstacles.Count; i++)
         {
-            if (transform.CheckCollision(obstacles[i].transform, desiredPosition))
+            if (transform.CheckCollision(obstacles[i].transform, transform.position))
             {
-                desiredPosition = oldPos;
+                transform.position = oldPos;
                 return;
             }
         }
         for (int i = 0; i < objects.Count; i++)
         {
-            if (objects[i] != this && objects[i].isAlive() && transform.CheckCollision(objects[i].transform, desiredPosition, objects[i].desiredPosition))
+            if (objects[i] != this && objects[i].isAlive() && transform.CheckCollision(objects[i].transform, transform.position, objects[i].transform.position))
             {
-                desiredPosition = oldPos;
+                transform.position = oldPos;
                 return;
             }
         }
     }
 
     public void PrepareUpdate(Vector3 pos, Quaternion rot)
-    {
-        needUpdate = true;
-        currentUpTime = 0f;
-        targetPos = pos;
-        targetRot = rot;
-        startPos = transform.position;
-        startRot = transform.rotation;
-        
-        desiredRotation = targetRot;
-        desiredPosition = targetPos;
-        
-        MoveTrajectory =  new MoveTrajectory(startPos,desiredPosition,ServerObject.Speed);
+    {   
+        MoveTrajectory.Refresh(transform.position, pos, ServerObject.Speed);
+        RotateTrajectory.Refresh(transform.rotation, rot);
     }
+    protected MoveTrajectory MoveTrajectory = new MoveTrajectory();
+    protected RotateTrajectory RotateTrajectory = new RotateTrajectory();
 
     public void GameUpdate(float deltaTime)
     {
-//        if (!needUpdate) return;
-//        var totalTime = BaseClient.ServerDeltaTime;
-//        if (currentUpTime < totalTime)
-//        {
-//            currentUpTime += deltaTime;
-//            var nextTime = currentUpTime + deltaTime;
-//            if (nextTime < totalTime)
-//            {
-//                desiredPosition = Vector3.Lerp(startPos, targetPos, currentUpTime / totalTime);
-//                desiredRotation = Quaternion.Slerp(startRot, targetRot, currentUpTime / totalTime);
-//            }
-//            else
-//            {
-//                desiredPosition = targetPos;
-//                desiredRotation = targetRot;
-//                needUpdate = false;
-//            }
-//        }
+        if (!MoveTrajectory.IsDone && !MoveTrajectory.CheckDone)
+        {
+            transform.position = MoveTrajectory.Update(deltaTime);
+        }
+        if(!RotateTrajectory.IsDone)
+        {
+            transform.rotation = RotateTrajectory.Update(deltaTime);
+        }
     }
 }

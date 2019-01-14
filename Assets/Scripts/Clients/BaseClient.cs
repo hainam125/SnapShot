@@ -18,13 +18,8 @@ public abstract class BaseClient : MonoBehaviour {
     private long currentTick;
 
     protected Queue<SnapShot> snapShots = new Queue<SnapShot>();
-    protected bool hasStartedProcessingSnapShot;
     protected bool isProcessingShapShot;
-
-    private long cachedCmdNo;
-    private Vector3 cachedPosition;
-    private Vector3 cachedRotation;
-
+    
     private bool up;
     private bool down;
     private bool left;
@@ -174,16 +169,6 @@ public abstract class BaseClient : MonoBehaviour {
 
             obj.SetHp(players[i].hp);
 
-            /*if (objectIndex == objId && reconcilation && prediction && cachedCmdNo == snapShot.commandId)
-            {
-                var rot = Optimazation.DecompressRot(entities[i].rotation);
-                var pos = Optimazation.DecompressPos2(entities[i].position);
-                var myObject = objectDict[objectIndex];
-                myObject.desiredPosition += (pos - cachedPosition);
-                myObject.desiredRotation = Quaternion.Euler(myObject.desiredRotation.eulerAngles + (rot.eulerAngles - cachedRotation));
-
-            }*/
-
             if (objectIndex == objId && reconcilation && prediction && snapShot.commandId < commandSoFar)
             {
                 isProcessingShapShot = false;
@@ -199,9 +184,8 @@ public abstract class BaseClient : MonoBehaviour {
                 }
                 else
                 {
-                    obj.PrepareUpdate(pos, rot);
-//                    obj.desiredRotation = rot;
-//                    obj.desiredPosition = pos;
+                    obj.transform.rotation = rot;
+                    obj.transform.position = pos;
                 }
             }
         }
@@ -214,12 +198,7 @@ public abstract class BaseClient : MonoBehaviour {
     protected void ProcessSnapShot(SnapShot snapShot)
     {
         snapShots.Enqueue(snapShot);
-        if (!hasStartedProcessingSnapShot && snapShots.Count > 1)
-        {
-            hasStartedProcessingSnapShot = true;
-            StartCoroutine(UpdateState());
-        }
-        else if (!isProcessingShapShot)
+        if (!isProcessingShapShot)
         {
             StartCoroutine(UpdateState());
         }
@@ -237,18 +216,7 @@ public abstract class BaseClient : MonoBehaviour {
         if (prediction)
         {
             MainPlayer().Predict(command);
-            CachedTransform();
         }
-    }
-
-    private void CachedTransform()
-    {
-        /*if (commandSoFar % 5 == 0)
-        {
-            cachedCmdNo = commandSoFar;
-            cachedPosition = objectDict[objectIndex].desiredPosition;
-            cachedRotation = objectDict[objectIndex].desiredRotation.eulerAngles;
-        }*/
     }
 
     public void AddObject(PlayerObject playerObject)
