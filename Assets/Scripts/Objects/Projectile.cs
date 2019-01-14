@@ -2,16 +2,19 @@
 
 public class Projectile : MonoBehaviour
 {
-    private const float Speed = 18f;
-    public const int PrefabId = 2;
-    public long id;
-    public Vector3 direction;
+    public long Id { get { return id; } }
 
+    private long id;
     private MoveTrajectory MoveTrajectory = new MoveTrajectory();
+
+    public void SetId(long newId)
+    {
+        id = newId;
+    }
 
     public void PrepareUpdate(Vector3 pos)
     {
-        MoveTrajectory.Refresh(transform.position, pos, Speed);
+        MoveTrajectory.Refresh(transform.position, pos, Config.ProjectileSpeed);
     }
 
     public void GameUpdate(float deltaTime)

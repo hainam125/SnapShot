@@ -25,12 +25,16 @@ public class ObjectFactory : MonoBehaviour {
 
     public static PlayerObject CreatePlayer1Object()
     {
-        return Instantiate(instance.object1Prefab, instance.players).GetComponent<PlayerObject>();
+        var player = Instantiate(instance.object1Prefab, instance.players).GetComponent<PlayerObject>();
+        player.Init(Config.PlayerRotateSpeed, Config.PlayerMoveSpeed, Config.PlayerMaxHP);
+        return player;
     }
 
     public static PlayerObject CreatePlayer2Object()
     {
-        return Instantiate(instance.object2Prefab, instance.players).GetComponent<PlayerObject>();
+        var player = Instantiate(instance.object2Prefab, instance.players).GetComponent<PlayerObject>();
+        player.Init(Config.PlayerRotateSpeed, Config.PlayerMoveSpeed, Config.PlayerMaxHP);
+        return player;
     }
 
     public static PlayerObject CreatePlayer2Object(NewEntity e)
@@ -62,7 +66,7 @@ public class ObjectFactory : MonoBehaviour {
         var rot = Optimazation.DecompressRot(e.rotation);
         var pos = Optimazation.DecompressPos2(e.position);
         var bound = Optimazation.DecompressPos2(e.bound);
-        projectile.id = e.id;
+        projectile.SetId(e.id);
         projectile.transform.position = pos;
         projectile.transform.rotation = rot;
         projectile.transform.localScale = bound;

@@ -7,7 +7,6 @@ using UnityEngine.UI;
 public abstract class BaseClient : MonoBehaviour {
     private const int Tick = 50;
     public const float DeltaTime = 1.0f / Tick;
-    public static float ServerDeltaTime;
     protected Dictionary<long, PlayerObject> playObjectDict = new Dictionary<long, PlayerObject>();
     protected Dictionary<long, Projectile> projectileDict = new Dictionary<long, Projectile>();
     public long objectIndex;
@@ -116,20 +115,6 @@ public abstract class BaseClient : MonoBehaviour {
         return playObjectDict[objectIndex];
     }
 
-    protected void ProcessInput()
-    {
-        byte cmd = 0;
-        if (up) cmd |= Command.Keys[KeyCode.W];
-        else if (down) cmd |= Command.Keys[KeyCode.S];
-        if (right) cmd |= Command.Keys[KeyCode.D];
-        else if (left) cmd |= Command.Keys[KeyCode.A];
-        if(fire) cmd |= Command.Keys[KeyCode.Space];
-
-        if (cmd == 0) return;
-        SendCommand(cmd);
-        up = false; down = false; right = false; left = false; fire = false;
-    }
-
     protected IEnumerator UpdateState()
     {
         isProcessingShapShot = true;
@@ -190,7 +175,7 @@ public abstract class BaseClient : MonoBehaviour {
             }
         }
 
-        if (entityInterpolation) yield return ServerDeltaTime;
+        if (entityInterpolation) yield return Constant.ServerDeltaTime;
         if (snapShots.Count > 0) StartCoroutine(UpdateState());
         else isProcessingShapShot = false;
     }
@@ -204,7 +189,19 @@ public abstract class BaseClient : MonoBehaviour {
         }
     }
 
-    protected abstract void InputUpdate();
+    protected virtual void InputUpdate()
+    {
+        byte cmd = 0;
+        if (up) cmd |= Command.Keys[KeyCode.W];
+        else if (down) cmd |= Command.Keys[KeyCode.S];
+        if (right) cmd |= Command.Keys[KeyCode.D];
+        else if (left) cmd |= Command.Keys[KeyCode.A];
+        if (fire) cmd |= Command.Keys[KeyCode.Space];
+
+        if (cmd == 0) return;
+        SendCommand(cmd);
+        up = false; down = false; right = false; left = false; fire = false;
+    }
 
     protected abstract void SendCommand(Command command);
 
@@ -234,12 +231,12 @@ public abstract class BaseClient : MonoBehaviour {
 
     public void AddProjectile(Projectile projectile)
     {
-        projectileDict.Add(projectile.id, projectile);
+        projectileDict.Add(projectile.Id, projectile);
     }
 
     public void RemoveProjectile(Projectile projectile)
     {
         Destroy(projectile.gameObject);
-        projectileDict.Remove(projectile.id);
+        projectileDict.Remove(projectile.Id);
     }
 }

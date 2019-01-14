@@ -7,13 +7,20 @@ public class RotateTrajectory {
     private Quaternion start;
     private Quaternion end;
     private bool isDone = true;
-    private float totalTime = BaseClient.ServerDeltaTime;
+    private float totalTime;
     private float currentTime;
     #endregion
 
     #region ===== Properties =====
     public bool IsDone { get { return isDone; } }
 
+    #endregion
+
+    #region ===== Constructor =====
+    public RotateTrajectory(float serverTime)
+    {
+        totalTime = serverTime;
+    }
     #endregion
 
     #region ===== Methods =====

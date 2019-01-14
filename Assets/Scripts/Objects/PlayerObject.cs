@@ -4,13 +4,14 @@ using NetworkMessage;
 
 public class PlayerObject : MonoBehaviour
 {
-    private const int MaxHp = 5;
-    public const int PrefabId = 0;
     public long id;
-    public int hp;
+    public int currentHp;
+    private int maxHp;
+    public Vector3 RotateSpeed { get; private set; }
+    public float MoveSpeed { get; private set; }
 
     private MoveTrajectory MoveTrajectory = new MoveTrajectory();
-    private RotateTrajectory RotateTrajectory = new RotateTrajectory();
+    private RotateTrajectory RotateTrajectory = new RotateTrajectory(Constant.ServerDeltaTime);
 
     [SerializeField]
     private Text nameTxt;
@@ -25,20 +26,32 @@ public class PlayerObject : MonoBehaviour
         nameTxt.text = name;
     }
 
-    public void SetHp(int newHp = MaxHp)
+    public void SetHp()
     {
-        if (newHp != hp)
+        SetHp(maxHp);
+    }
+
+    public void SetHp(int newHp)
+    {
+        if (newHp != currentHp)
         {
-            if (hp <= 0 && newHp > 0) gameObject.SetActive(true);
-            hp = newHp;
-            hpRect.localScale = new Vector3(hp * 1f / MaxHp, 1f, 1f);
-            if (hp <= 0) gameObject.SetActive(false);
+            if (currentHp <= 0 && newHp > 0) gameObject.SetActive(true);
+            currentHp = newHp;
+            hpRect.localScale = new Vector3(currentHp * 1f / maxHp, 1f, 1f);
+            if (currentHp <= 0) gameObject.SetActive(false);
         }
+    }
+
+    public void Init(Vector3 rotSpeed, float moveSpeed, int hp)
+    {
+        RotateSpeed = rotSpeed;
+        MoveSpeed = moveSpeed;
+        maxHp = hp;
     }
 
     public bool isAlive()
     {
-        return hp > 0;
+        return currentHp > 0;
     }
 
     public void ToggleCamera(bool active)
@@ -60,7 +73,7 @@ public class PlayerObject : MonoBehaviour
         var objects = GameManager.Instance.playerObjects;
 
         Quaternion oldRot = transform.rotation;
-        transform.Rotate(ServerObject.RotateSpeed * BaseClient.DeltaTime * direction);
+        transform.Rotate(RotateSpeed * BaseClient.DeltaTime * direction);
 
         for (int i = 0; i < obstacles.Count; i++)
         {
@@ -85,9 +98,8 @@ public class PlayerObject : MonoBehaviour
     {
         var obstacles = GameManager.Instance.obstacles;
         var objects = GameManager.Instance.playerObjects;
-        var speed = ServerObject.Speed;
         Vector3 oldPos = transform.position;
-        transform.position += speed * BaseClient.DeltaTime * transform.forward * direction;
+        transform.position += MoveSpeed * BaseClient.DeltaTime * transform.forward * direction;
         for (int i = 0; i < obstacles.Count; i++)
         {
             if (transform.CheckCollision(obstacles[i].transform, transform.position))
@@ -108,7 +120,7 @@ public class PlayerObject : MonoBehaviour
 
     public void PrepareUpdate(Vector3 pos, Quaternion rot)
     {   
-        MoveTrajectory.Refresh(transform.position, pos, ServerObject.Speed);
+        MoveTrajectory.Refresh(transform.position, pos, MoveSpeed);
         RotateTrajectory.Refresh(transform.rotation, rot);
     }
 

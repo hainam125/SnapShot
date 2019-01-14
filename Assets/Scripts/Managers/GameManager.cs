@@ -51,7 +51,7 @@ public class GameManager : MonoBehaviour
         var newEntities = snapShot.newEntities;
         foreach (var e in newEntities)
         {
-            if (e.prefabId == Obstacle.PrefabId)
+            if (e.prefabId == Config.ObstaclePrefabId)
             {
                 obstacles.Add(ObjectFactory.CreateObstacle(e));
             }
@@ -67,18 +67,18 @@ public class GameManager : MonoBehaviour
         var newObjects = new Dictionary<long, PlayerObject>();
         foreach (var e in newEntities)
         {
-            if (e.prefabId == Obstacle.PrefabId)
+            if (e.prefabId == Config.ObstaclePrefabId)
             {
                 obstacles.Add(ObjectFactory.CreateObstacle(e));
             }
-            else if(e.prefabId == Projectile.PrefabId)
+            else if(e.prefabId == Config.ProjectilePrefabId)
             {
                 remoteClient.AddProjectile(ObjectFactory.CreateProjectile(e));
             }
         }
         foreach (var e in newPlayers)
         {
-            if (e.prefabId == PlayerObject.PrefabId)
+            if (e.prefabId == Config.PlayerPrefabId)
             {
                 var playerObject = ObjectFactory.CreatePlayer2Object(e);
                 playerObject.SetHp(e.hp);
