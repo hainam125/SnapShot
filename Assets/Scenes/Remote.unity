@@ -392,7 +392,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 1006251203}
+        - m_Target: {fileID: 1006251204}
           m_MethodName: ToggleLeft
           m_Mode: 6
           m_Arguments:
@@ -409,7 +409,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 1006251203}
+        - m_Target: {fileID: 1006251204}
           m_MethodName: ToggleLeft
           m_Mode: 6
           m_Arguments:
@@ -1158,7 +1158,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 1006251203}
+        - m_Target: {fileID: 1006251204}
           m_MethodName: ToggleUpRight
           m_Mode: 6
           m_Arguments:
@@ -1175,7 +1175,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 1006251203}
+        - m_Target: {fileID: 1006251204}
           m_MethodName: ToggleUpRight
           m_Mode: 6
           m_Arguments:
@@ -2321,7 +2321,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 1006251203}
+        - m_Target: {fileID: 1006251204}
           m_MethodName: ToggleDownRight
           m_Mode: 6
           m_Arguments:
@@ -2338,7 +2338,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 1006251203}
+        - m_Target: {fileID: 1006251204}
           m_MethodName: ToggleDownRight
           m_Mode: 6
           m_Arguments:
@@ -2631,7 +2631,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 1006251203}
+        - m_Target: {fileID: 1006251204}
           m_MethodName: ToggleFire
           m_Mode: 6
           m_Arguments:
@@ -2648,7 +2648,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 1006251203}
+        - m_Target: {fileID: 1006251204}
           m_MethodName: ToggleFire
           m_Mode: 6
           m_Arguments:
@@ -3639,7 +3639,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 1006251203}
+        - m_Target: {fileID: 1006251204}
           m_MethodName: ToggleUp
           m_Mode: 6
           m_Arguments:
@@ -3656,7 +3656,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 1006251203}
+        - m_Target: {fileID: 1006251204}
           m_MethodName: ToggleUp
           m_Mode: 6
           m_Arguments:
@@ -3724,7 +3724,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 1006251203}
+        - m_Target: {fileID: 1006251204}
           m_MethodName: ToggleUpLeft
           m_Mode: 6
           m_Arguments:
@@ -3741,7 +3741,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 1006251203}
+        - m_Target: {fileID: 1006251204}
           m_MethodName: ToggleUpLeft
           m_Mode: 6
           m_Arguments:
@@ -4099,6 +4099,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1006251202}
   - component: {fileID: 1006251203}
+  - component: {fileID: 1006251204}
   m_Layer: 5
   m_Name: RemoteClient
   m_TagString: Untagged
@@ -4136,14 +4137,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   objectIndex: -1
+  input: {fileID: 1006251204}
   predictionToggle: {fileID: 695365758}
   reconcilationToggle: {fileID: 975915730}
   interpolationToggle: {fileID: 1307275491}
-  buttonA: {fileID: 77088016}
-  buttonD: {fileID: 1974269888}
-  buttonW: {fileID: 868369868}
-  buttonS: {fileID: 2093545350}
-  buttonSpace: {fileID: 637989576}
+--- !u!114 &1006251204
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1006251201}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c20c22c2b1b411242964df28f207e094, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1026382131
 GameObject:
   m_ObjectHideFlags: 0
@@ -7018,7 +7026,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 1006251203}
+        - m_Target: {fileID: 1006251204}
           m_MethodName: ToggleRight
           m_Mode: 6
           m_Arguments:
@@ -7035,7 +7043,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 1006251203}
+        - m_Target: {fileID: 1006251204}
           m_MethodName: ToggleRight
           m_Mode: 6
           m_Arguments:
@@ -7103,7 +7111,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 1006251203}
+        - m_Target: {fileID: 1006251204}
           m_MethodName: ToggleDownLeft
           m_Mode: 6
           m_Arguments:
@@ -7120,7 +7128,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 1006251203}
+        - m_Target: {fileID: 1006251204}
           m_MethodName: ToggleDownLeft
           m_Mode: 6
           m_Arguments:
@@ -7397,7 +7405,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 1006251203}
+        - m_Target: {fileID: 1006251204}
           m_MethodName: ToggleDown
           m_Mode: 6
           m_Arguments:
@@ -7414,7 +7422,7 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 1006251203}
+        - m_Target: {fileID: 1006251204}
           m_MethodName: ToggleDown
           m_Mode: 6
           m_Arguments:

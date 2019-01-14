@@ -18,82 +18,22 @@ public abstract class BaseClient : MonoBehaviour {
 
     protected Queue<SnapShot> snapShots = new Queue<SnapShot>();
     protected bool isProcessingShapShot;
-    
-    private bool up;
-    private bool down;
-    private bool left;
-    private bool right;
-    private bool fire;
 
-    private const int fireRate = 3;
-    private float timeNextFire;
-    
+    [SerializeField]
+    private ClientInput input;
+
     [SerializeField]
     private Toggle predictionToggle;
     [SerializeField]
     private Toggle reconcilationToggle;
     [SerializeField]
     private Toggle interpolationToggle;
-
-    [SerializeField]
-    private Button buttonA;
-    [SerializeField]
-    private Button buttonD;
-    [SerializeField]
-    private Button buttonW;
-    [SerializeField]
-    private Button buttonS;
-    [SerializeField]
-    private Button buttonSpace;
-
-    private bool pressUp;
-    private bool pressDown;
-    private bool pressLeft;
-    private bool pressRight;
-    private bool pressFire;
-
-    public void ToggleDown(bool r) { pressDown = r; }
-    public void ToggleUp(bool r) { pressUp = r; }
-    public void ToggleLeft(bool r) { pressLeft = r; }
-    public void ToggleRight(bool r) { pressRight = r; }
-    public void ToggleUpRight(bool r) { pressUp = r; pressRight = r; }
-    public void ToggleUpLeft(bool r) { pressUp = r; pressLeft = r; }
-    public void ToggleDownRight(bool r) { pressDown = r; pressRight = r; }
-    public void ToggleDownLeft(bool r) { pressDown = r; pressLeft = r; }
-    public void ToggleFire(bool r) { pressFire = r; }
-
+    
     private void Awake()
     {
         predictionToggle.onValueChanged.AddListener(value => prediction = value);
         reconcilationToggle.onValueChanged.AddListener(value => reconcilation = value);
         interpolationToggle.onValueChanged.AddListener(value => entityInterpolation = value);
-    }
-
-    private void Update()
-    {
-        if (Input.GetKey(KeyCode.W) || pressUp)
-        {
-            up = true;
-        }
-        else if (Input.GetKey(KeyCode.S) || pressDown)
-        {
-            down = true;
-        }
-        if (Input.GetKey(KeyCode.D) || pressRight)
-        {
-            right = true;
-        }
-        else if (Input.GetKey(KeyCode.A) || pressLeft)
-        {
-            left = true;
-        }
-        if (Input.GetKey(KeyCode.Space) || pressFire)
-        {
-            if (timeNextFire < Time.timeSinceLevelLoad) {
-                fire = true;
-                timeNextFire = Time.timeSinceLevelLoad + 1f / fireRate;
-            }
-        }
     }
 
     private void FixedUpdate()
@@ -191,16 +131,8 @@ public abstract class BaseClient : MonoBehaviour {
 
     protected virtual void InputUpdate()
     {
-        byte cmd = 0;
-        if (up) cmd |= Command.Keys[KeyCode.W];
-        else if (down) cmd |= Command.Keys[KeyCode.S];
-        if (right) cmd |= Command.Keys[KeyCode.D];
-        else if (left) cmd |= Command.Keys[KeyCode.A];
-        if (fire) cmd |= Command.Keys[KeyCode.Space];
-
-        if (cmd == 0) return;
-        SendCommand(cmd);
-        up = false; down = false; right = false; left = false; fire = false;
+        var cmd = input.InputUpdate();
+        if(cmd != 0) SendCommand(cmd);
     }
 
     protected abstract void SendCommand(Command command);
