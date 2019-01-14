@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using NetworkMessage;
 
@@ -10,6 +8,9 @@ public class PlayerObject : MonoBehaviour
     public const int PrefabId = 0;
     public long id;
     public int hp;
+
+    private MoveTrajectory MoveTrajectory = new MoveTrajectory();
+    private RotateTrajectory RotateTrajectory = new RotateTrajectory();
 
     [SerializeField]
     private Text nameTxt;
@@ -110,8 +111,6 @@ public class PlayerObject : MonoBehaviour
         MoveTrajectory.Refresh(transform.position, pos, ServerObject.Speed);
         RotateTrajectory.Refresh(transform.rotation, rot);
     }
-    protected MoveTrajectory MoveTrajectory = new MoveTrajectory();
-    protected RotateTrajectory RotateTrajectory = new RotateTrajectory();
 
     public void GameUpdate(float deltaTime)
     {

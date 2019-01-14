@@ -1,13 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class RotateTrajectory {
 
     #region ===== Fields =====
-    protected Quaternion rotation;
-    protected Quaternion start;
-    protected Quaternion end;
+    private Quaternion rotation;
+    private Quaternion start;
+    private Quaternion end;
     private bool isDone = true;
     private float totalTime = BaseClient.ServerDeltaTime;
     private float currentTime;

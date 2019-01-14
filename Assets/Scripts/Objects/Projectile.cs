@@ -1,43 +1,24 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Projectile : MonoBehaviour
 {
+    private const float Speed = 18f;
     public const int PrefabId = 2;
     public long id;
     public Vector3 direction;
 
-    private bool needUpdate;
-    private float currentUpTime;
-    private Vector3 startPos;
-    private Vector3 targetPos;
+    private MoveTrajectory MoveTrajectory = new MoveTrajectory();
 
     public void PrepareUpdate(Vector3 pos)
     {
-        needUpdate = true;
-        currentUpTime = 0f;
-        targetPos = pos;
-        startPos = transform.position;
+        MoveTrajectory.Refresh(transform.position, pos, Speed);
     }
 
     public void GameUpdate(float deltaTime)
     {
-        if (!needUpdate) return;
-        var totalTime = BaseClient.ServerDeltaTime;
-        if (currentUpTime < totalTime)
+        if (!MoveTrajectory.IsDone && !MoveTrajectory.CheckDone)
         {
-            currentUpTime += deltaTime;
-            var nextTime = currentUpTime + deltaTime;
-            if (nextTime < totalTime)
-            {
-                transform.position = Vector3.Lerp(startPos, targetPos, currentUpTime / totalTime);
-            }
-            else
-            {
-                transform.position = targetPos;
-                needUpdate = false;
-            }
+            transform.position = MoveTrajectory.Update(deltaTime);
         }
     }
 }

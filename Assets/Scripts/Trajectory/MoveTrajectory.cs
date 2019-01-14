@@ -1,17 +1,15 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class MoveTrajectory
 {
     #region ===== Fields =====
-    protected Vector3 position = Vector3.zero;
-    protected Vector3 start = Vector3.zero;
-    protected Vector3 end = Vector3.zero;
-    protected float duration = 0f;
-    protected float speed = 0f;
-    protected float spentTime = 0f;
-    protected Vector3 direction = Vector3.zero;
+    private Vector3 position = Vector3.zero;
+    private Vector3 start = Vector3.zero;
+    private Vector3 end = Vector3.zero;
+    private float duration = 0f;
+    private float speed = 0f;
+    private float spentTime = 0f;
+    private Vector3 direction = Vector3.zero;
     private bool isDone = true;
     #endregion
 
