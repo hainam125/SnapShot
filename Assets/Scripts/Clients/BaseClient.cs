@@ -99,8 +99,8 @@ public abstract class BaseClient : MonoBehaviour
 
             var newHp = players[i].hp;
 
-            obj.SetHp(newHp);
             bool hasRespawn = obj.CheckRespawn(newHp);
+            obj.SetHp(newHp);
 
             if (objectIndex == objId && isReconcilation && isPrediction && snapShot.commandId < commandSoFar)
             {

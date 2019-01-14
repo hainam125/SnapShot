@@ -2,9 +2,9 @@
 
 public class Projectile : MonoBehaviour
 {
+    private long id;
     public long Id { get { return id; } }
 
-    private long id;
     private MoveTrajectory moveTrajectory = new MoveTrajectory();
 
     public void SetId(long newId)
