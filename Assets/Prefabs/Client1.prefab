@@ -39,6 +39,7 @@ GameObject:
   - component: {fileID: 33507243805862196}
   - component: {fileID: 23542331192289294}
   - component: {fileID: 114559467784538394}
+  - component: {fileID: 114550910091885118}
   m_Layer: 0
   m_Name: Client1
   m_TagString: Untagged
@@ -381,6 +382,20 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
+--- !u!114 &114550910091885118
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1179564988538662}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 332019b6ebda06e49b52c3b54c6de8e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nameTxt: {fileID: 114772741017733296}
+  hpRect: {fileID: 224653465988624598}
+  mCamera: {fileID: 1410831262964580}
 --- !u!114 &114559467784538394
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -393,12 +408,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   id: 0
-  desiredRotation: {x: 0, y: 0, z: 0, w: 0}
-  desiredPosition: {x: 0, y: 0, z: 0}
-  hp: 0
-  nameTxt: {fileID: 114772741017733296}
-  hpRect: {fileID: 224653465988624598}
-  mCamera: {fileID: 1410831262964580}
+  currentHp: 0
 --- !u!114 &114687387756022270
 MonoBehaviour:
   m_ObjectHideFlags: 1

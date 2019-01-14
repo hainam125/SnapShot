@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 33929735581780912}
   - component: {fileID: 23728538767840092}
   - component: {fileID: 114218987811193970}
+  - component: {fileID: 114217289270822630}
   m_Layer: 0
   m_Name: Client2
   m_TagString: Untagged
@@ -315,6 +316,20 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
+--- !u!114 &114217289270822630
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1094774250356462}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 332019b6ebda06e49b52c3b54c6de8e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nameTxt: {fileID: 114741327472141584}
+  hpRect: {fileID: 224912288925454298}
+  mCamera: {fileID: 0}
 --- !u!114 &114218987811193970
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -327,12 +342,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   id: 0
-  desiredRotation: {x: 0, y: 0, z: 0, w: 0}
-  desiredPosition: {x: 0, y: 0, z: 0}
-  hp: 0
-  nameTxt: {fileID: 114741327472141584}
-  hpRect: {fileID: 224912288925454298}
-  mCamera: {fileID: 0}
+  currentHp: 0
 --- !u!114 &114364801594947778
 MonoBehaviour:
   m_ObjectHideFlags: 1

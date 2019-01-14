@@ -1,10 +1,8 @@
 ﻿using NetworkMessage;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
-public class ClientInput : MonoBehaviour {
+public class ClientInput : MonoBehaviour
+{
     private bool up;
     private bool down;
     private bool left;
@@ -58,7 +56,7 @@ public class ClientInput : MonoBehaviour {
         }
     }
 
-    public byte InputUpdate()
+    public byte GetCmd()
     {
         byte cmd = 0;
         if (up) cmd |= Command.Keys[KeyCode.W];

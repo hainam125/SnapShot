@@ -17,6 +17,13 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private GameObject mCamera;
 
+    [SerializeField]
+    private Toggle predictionToggle;
+    [SerializeField]
+    private Toggle reconcilationToggle;
+    [SerializeField]
+    private Toggle interpolationToggle;
+
     public List<Obstacle> obstacles = new List<Obstacle>();
     public List<PlayerObject> playerObjects = new List<PlayerObject>();
 
@@ -28,6 +35,9 @@ public class GameManager : MonoBehaviour
         remoteClient.gameObject.SetActive(false);
 
         cameraToggle.onValueChanged.AddListener(value => ToggleCamera(value));
+        predictionToggle.onValueChanged.AddListener(value => remoteClient.SetPrediction(value));
+        reconcilationToggle.onValueChanged.AddListener(value => remoteClient.SetReconcilation(value));
+        interpolationToggle.onValueChanged.AddListener(value => remoteClient.SetInterpolation(value));
     }
 
     private void Init(long objectId)
@@ -36,7 +46,7 @@ public class GameManager : MonoBehaviour
         remoteClient.gameObject.SetActive(true);
         remoteClient.objectIndex = objectId;
         var playerObject = ObjectFactory.CreatePlayer1Object();
-        playerObject.id = objectId;
+        playerObject.SetId(objectId);
         playerObject.SetName(username);
         playerObject.SetHp();
 
@@ -83,7 +93,7 @@ public class GameManager : MonoBehaviour
                 var playerObject = ObjectFactory.CreatePlayer2Object(e);
                 playerObject.SetHp(e.hp);
                 remoteClient.AddObject(playerObject);
-                newObjects.Add(playerObject.id, playerObject);
+                newObjects.Add(playerObject.Id, playerObject);
                 playerObjects.Add(playerObject);
             }
         }
@@ -98,7 +108,7 @@ public class GameManager : MonoBehaviour
         var userJoined = JsonUtility.FromJson<UserJoined>(response.data);
         Debug.Log("User joined: " + userJoined.username);
         var playerObject = ObjectFactory.CreatePlayer2Object();
-        playerObject.id = userJoined.objectId;
+        playerObject.SetId(userJoined.objectId);
         playerObject.SetName(userJoined.username);
         playerObject.SetHp();
         remoteClient.AddObject(playerObject);
@@ -123,6 +133,6 @@ public class GameManager : MonoBehaviour
     {
         if (remoteClient.objectIndex < 0) return;
         mCamera.SetActive(isMain);
-        remoteClient.MainPlayer().ToggleCamera(!isMain);
+        remoteClient.GetMainPlayer().ToggleCamera(!isMain);
     }
 }

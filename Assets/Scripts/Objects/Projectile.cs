@@ -12,6 +12,11 @@ public class Projectile : MonoBehaviour
         id = newId;
     }
 
+    public void UpdateState(Vector3 pos)
+    {
+        transform.position = pos;
+    }
+
     public void PrepareUpdate(Vector3 pos)
     {
         MoveTrajectory.Refresh(transform.position, pos, Config.ProjectileSpeed);

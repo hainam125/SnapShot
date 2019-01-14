@@ -40,7 +40,7 @@ public class ObjectFactory : MonoBehaviour {
     public static PlayerObject CreatePlayer2Object(NewEntity e)
     {
         var playerObject = CreatePlayer2Object();
-        playerObject.id = e.id;
+        playerObject.SetId(e.id);
         var rot = Optimazation.DecompressRot(e.rotation);
         var pos = Optimazation.DecompressPos2(e.position);
         playerObject.transform.position = pos;

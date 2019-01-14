@@ -1907,6 +1907,9 @@ MonoBehaviour:
   cameraToggle: {fileID: 1026382133}
   remoteClient: {fileID: 1006251203}
   mCamera: {fileID: 201312000}
+  predictionToggle: {fileID: 695365758}
+  reconcilationToggle: {fileID: 975915730}
+  interpolationToggle: {fileID: 1307275491}
   obstacles: []
   playerObjects: []
 --- !u!4 &471206657
@@ -4137,10 +4140,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   objectIndex: -1
-  input: {fileID: 1006251204}
-  predictionToggle: {fileID: 695365758}
-  reconcilationToggle: {fileID: 975915730}
-  interpolationToggle: {fileID: 1307275491}
 --- !u!114 &1006251204
 MonoBehaviour:
   m_ObjectHideFlags: 0

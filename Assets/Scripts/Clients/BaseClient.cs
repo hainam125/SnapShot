@@ -2,58 +2,68 @@
 using System.Collections.Generic;
 using NetworkMessage;
 using UnityEngine;
-using UnityEngine.UI;
 
-public abstract class BaseClient : MonoBehaviour {
-    private const int Tick = 50;
-    public const float DeltaTime = 1.0f / Tick;
+public abstract class BaseClient : MonoBehaviour
+{
+    private float deltaTime;
     protected Dictionary<long, PlayerObject> playObjectDict = new Dictionary<long, PlayerObject>();
     protected Dictionary<long, Projectile> projectileDict = new Dictionary<long, Projectile>();
     public long objectIndex;
-    private bool prediction;
-    private bool reconcilation;
-    private bool entityInterpolation;
+    private bool isPrediction;
+    private bool isReconcilation;
+    private bool isInterpolation;
     private long commandSoFar = 0;
     private long currentTick;
 
     protected Queue<SnapShot> snapShots = new Queue<SnapShot>();
     protected bool isProcessingShapShot;
-
-    [SerializeField]
+    
     private ClientInput input;
 
-    [SerializeField]
-    private Toggle predictionToggle;
-    [SerializeField]
-    private Toggle reconcilationToggle;
-    [SerializeField]
-    private Toggle interpolationToggle;
-    
+    #region ===== Main methods =====
     private void Awake()
     {
-        predictionToggle.onValueChanged.AddListener(value => prediction = value);
-        reconcilationToggle.onValueChanged.AddListener(value => reconcilation = value);
-        interpolationToggle.onValueChanged.AddListener(value => entityInterpolation = value);
+        input = GetComponent<ClientInput>();
+        deltaTime = Time.fixedDeltaTime;
+        Debug.Log(deltaTime);
     }
 
     private void FixedUpdate()
     {
         currentTick++;
-        InputUpdate();
+        UpdateInput();
         foreach (var kv in playObjectDict)
         {
-            kv.Value.GameUpdate(DeltaTime);
+            kv.Value.GameUpdate(deltaTime);
         }
         foreach (var kv in projectileDict)
         {
-            kv.Value.GameUpdate(DeltaTime);
+            kv.Value.GameUpdate(deltaTime);
         }
     }
 
-    public PlayerObject MainPlayer()
+    #endregion
+
+    #region ===== Properties =====
+
+    public void SetPrediction(bool value)
     {
-        return playObjectDict[objectIndex];
+        isPrediction = value;
     }
+
+    public void SetReconcilation(bool value)
+    {
+        isReconcilation = value;
+    }
+
+    public void SetInterpolation(bool value)
+    {
+        isInterpolation = value;
+    }
+
+    #endregion
+
+    #region ===== Snapshot =====
 
     protected IEnumerator UpdateState()
     {
@@ -77,14 +87,9 @@ public abstract class BaseClient : MonoBehaviour {
         {
             Projectile obj = projectileDict[entities[i].id];
             var pos = Optimazation.DecompressPos2(entities[i].position);
-            if (entityInterpolation)
-            {
-                obj.PrepareUpdate(pos);
-            }
-            else
-            {
-                obj.transform.position = pos;
-            }
+
+            if (isInterpolation) obj.PrepareUpdate(pos);
+            else obj.UpdateState(pos);
         }
 
         for (int i = 0; i < players.Count; i++)
@@ -94,7 +99,7 @@ public abstract class BaseClient : MonoBehaviour {
 
             obj.SetHp(players[i].hp);
 
-            if (objectIndex == objId && reconcilation && prediction && snapShot.commandId < commandSoFar)
+            if (objectIndex == objId && isReconcilation && isPrediction && snapShot.commandId < commandSoFar)
             {
                 isProcessingShapShot = false;
                 continue;
@@ -103,19 +108,15 @@ public abstract class BaseClient : MonoBehaviour {
             {
                 var rot = Optimazation.DecompressRot(players[i].rotation);
                 var pos = Optimazation.DecompressPos2(players[i].position);
-                if (entityInterpolation && objectIndex != objId)
-                {
-                    obj.PrepareUpdate(pos, rot);
-                }
-                else
-                {
-                    obj.transform.rotation = rot;
-                    obj.transform.position = pos;
-                }
+
+                if (isInterpolation && objectIndex != objId) obj.PrepareUpdate(pos, rot); 
+                else obj.UpdateState(pos, rot);
             }
         }
 
-        if (entityInterpolation) yield return Constant.ServerDeltaTime;
+        //yield return Constant.ServerDeltaTime;
+        yield return null;
+
         if (snapShots.Count > 0) StartCoroutine(UpdateState());
         else isProcessingShapShot = false;
     }
@@ -129,28 +130,41 @@ public abstract class BaseClient : MonoBehaviour {
         }
     }
 
-    protected virtual void InputUpdate()
+    #endregion
+
+    #region ===== Send Input =====
+
+    protected virtual void UpdateInput()
     {
-        var cmd = input.InputUpdate();
+        var cmd = input.GetCmd();
         if(cmd != 0) SendCommand(cmd);
     }
-
-    protected abstract void SendCommand(Command command);
 
     private void SendCommand(byte cmd)
     {
         commandSoFar++;
         var command = new Command(commandSoFar, currentTick, cmd);
         SendCommand(command);
-        if (prediction)
+        if (isPrediction)
         {
-            MainPlayer().Predict(command);
+            GetMainPlayer().Predict(command, deltaTime);
         }
+    }
+
+    protected abstract void SendCommand(Command command);
+
+    #endregion
+
+    #region ===== Objects =====
+
+    public PlayerObject GetMainPlayer()
+    {
+        return playObjectDict[objectIndex];
     }
 
     public void AddObject(PlayerObject playerObject)
     {
-        playObjectDict.Add(playerObject.id, playerObject);
+        playObjectDict.Add(playerObject.Id, playerObject);
     }
 
     public PlayerObject RemoveObject(long objectId)
@@ -171,4 +185,5 @@ public abstract class BaseClient : MonoBehaviour {
         Destroy(projectile.gameObject);
         projectileDict.Remove(projectile.Id);
     }
+    #endregion
 }

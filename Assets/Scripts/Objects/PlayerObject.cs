@@ -1,10 +1,10 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
 using NetworkMessage;
 
 public class PlayerObject : MonoBehaviour
 {
-    public long id;
+    private long id;
+    public long Id { get { return id; } }
     public int currentHp;
     private int maxHp;
     public Vector3 RotateSpeed { get; private set; }
@@ -13,17 +13,34 @@ public class PlayerObject : MonoBehaviour
     private MoveTrajectory MoveTrajectory = new MoveTrajectory();
     private RotateTrajectory RotateTrajectory = new RotateTrajectory(Constant.ServerDeltaTime);
 
-    [SerializeField]
-    private Text nameTxt;
-    [SerializeField]
-    private RectTransform hpRect;
-    [SerializeField]
-    private GameObject mCamera;
+    private PlayerView view;
+
+    private void Awake()
+    {
+        view = GetComponent<PlayerView>();
+    }
+
+    #region ===== Methods =====
+    public void Init(Vector3 rotSpeed, float moveSpeed, int hp)
+    {
+        RotateSpeed = rotSpeed;
+        MoveSpeed = moveSpeed;
+        maxHp = hp;
+    }
+
+    public void SetId(long newId)
+    {
+        id = newId;
+    }
 
     public void SetName(string name)
     {
-        nameTxt.transform.parent.gameObject.SetActive(true);
-        nameTxt.text = name;
+        view.SetName(name);
+    }
+
+    public void ToggleCamera(bool active)
+    {
+        view.ToggleCamera(active);
     }
 
     public void SetHp()
@@ -37,43 +54,41 @@ public class PlayerObject : MonoBehaviour
         {
             if (currentHp <= 0 && newHp > 0) gameObject.SetActive(true);
             currentHp = newHp;
-            hpRect.localScale = new Vector3(currentHp * 1f / maxHp, 1f, 1f);
+            view.UpdateHp(currentHp * 1f / maxHp);
             if (currentHp <= 0) gameObject.SetActive(false);
         }
     }
 
-    public void Init(Vector3 rotSpeed, float moveSpeed, int hp)
-    {
-        RotateSpeed = rotSpeed;
-        MoveSpeed = moveSpeed;
-        maxHp = hp;
-    }
-
-    public bool isAlive()
+    public bool IsAlive()
     {
         return currentHp > 0;
     }
 
-    public void ToggleCamera(bool active)
+    public void UpdateState(Vector3 pos, Quaternion rot)
     {
-        mCamera.SetActive(active);
+        transform.rotation = rot;
+        transform.position = pos;
     }
 
-    public void Predict(Command cmd)
+    #endregion
+
+    #region ===== Prediction =====
+
+    public void Predict(Command cmd, float deltaTime)
     {
-        if(cmd.HasUp()) HandleMovement(1f);
-        else if(cmd.HasDown()) HandleMovement(-1f);
-        if (cmd.HasRight()) HandleRotation(1f);
-        else if (cmd.HasLeft()) HandleRotation(-1f);
+        if(cmd.HasUp()) HandleMovement(1f, deltaTime);
+        else if(cmd.HasDown()) HandleMovement(-1f, deltaTime);
+        if (cmd.HasRight()) HandleRotation(1f, deltaTime);
+        else if (cmd.HasLeft()) HandleRotation(-1f, deltaTime);
     }
 
-    private void HandleRotation(float direction)
+    private void HandleRotation(float direction, float deltaTime)
     {
         var obstacles = GameManager.Instance.obstacles;
         var objects = GameManager.Instance.playerObjects;
 
         Quaternion oldRot = transform.rotation;
-        transform.Rotate(RotateSpeed * BaseClient.DeltaTime * direction);
+        transform.Rotate(RotateSpeed * deltaTime * direction);
 
         for (int i = 0; i < obstacles.Count; i++)
         {
@@ -86,7 +101,7 @@ public class PlayerObject : MonoBehaviour
 
         for (int i = 0; i < objects.Count; i++)
         {
-            if (objects[i] != this && objects[i].isAlive() && transform.CheckCollision(objects[i].transform, transform.position, objects[i].transform.position))
+            if (objects[i] != this && objects[i].IsAlive() && transform.CheckCollision(objects[i].transform, transform.position, objects[i].transform.position))
             {
                 transform.rotation = oldRot;
                 return;
@@ -94,12 +109,12 @@ public class PlayerObject : MonoBehaviour
         }
     }
 
-    private void HandleMovement(float direction)
+    private void HandleMovement(float direction, float deltaTime)
     {
         var obstacles = GameManager.Instance.obstacles;
         var objects = GameManager.Instance.playerObjects;
         Vector3 oldPos = transform.position;
-        transform.position += MoveSpeed * BaseClient.DeltaTime * transform.forward * direction;
+        transform.position += MoveSpeed * deltaTime * transform.forward * direction;
         for (int i = 0; i < obstacles.Count; i++)
         {
             if (transform.CheckCollision(obstacles[i].transform, transform.position))
@@ -110,7 +125,7 @@ public class PlayerObject : MonoBehaviour
         }
         for (int i = 0; i < objects.Count; i++)
         {
-            if (objects[i] != this && objects[i].isAlive() && transform.CheckCollision(objects[i].transform, transform.position, objects[i].transform.position))
+            if (objects[i] != this && objects[i].IsAlive() && transform.CheckCollision(objects[i].transform, transform.position, objects[i].transform.position))
             {
                 transform.position = oldPos;
                 return;
@@ -118,6 +133,9 @@ public class PlayerObject : MonoBehaviour
         }
     }
 
+    #endregion
+
+    #region ===== Interpolation =====
     public void PrepareUpdate(Vector3 pos, Quaternion rot)
     {   
         MoveTrajectory.Refresh(transform.position, pos, MoveSpeed);
@@ -135,4 +153,5 @@ public class PlayerObject : MonoBehaviour
             transform.rotation = RotateTrajectory.Update(deltaTime);
         }
     }
+    #endregion
 }
