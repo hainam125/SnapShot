@@ -7,17 +7,20 @@ public class PlayerObject : MonoBehaviour
     public long Id { get { return id; } }
     public int currentHp;
     private int maxHp;
+
     public Vector3 RotateSpeed { get; private set; }
     public float MoveSpeed { get; private set; }
 
-    private MoveTrajectory MoveTrajectory = new MoveTrajectory();
-    private RotateTrajectory RotateTrajectory = new RotateTrajectory(Constant.ServerDeltaTime);
+    private MoveTrajectory moveTrajectory;
+    private RotateTrajectory rotateTrajectory;
 
     private PlayerView view;
 
     private void Awake()
     {
         view = GetComponent<PlayerView>();
+        moveTrajectory = new MoveTrajectory();
+        rotateTrajectory = new RotateTrajectory();
     }
 
     #region ===== Methods =====
@@ -26,6 +29,11 @@ public class PlayerObject : MonoBehaviour
         RotateSpeed = rotSpeed;
         MoveSpeed = moveSpeed;
         maxHp = hp;
+    }
+
+    public bool IsAlive()
+    {
+        return currentHp > 0;
     }
 
     public void SetId(long newId)
@@ -52,16 +60,25 @@ public class PlayerObject : MonoBehaviour
     {
         if (newHp != currentHp)
         {
-            if (currentHp <= 0 && newHp > 0) gameObject.SetActive(true);
             currentHp = newHp;
             view.UpdateHp(currentHp * 1f / maxHp);
-            if (currentHp <= 0) gameObject.SetActive(false);
+            if (currentHp <= 0) SetActive(false);
         }
     }
 
-    public bool IsAlive()
+    public void SetActive(bool status)
     {
-        return currentHp > 0;
+        gameObject.SetActive(status);
+    }
+
+    public bool CheckRespawn(int newHp)
+    {
+        if (currentHp <= 0 && newHp > 0)
+        {
+            SetActive(true);
+            return true;
+        }
+        return false;
     }
 
     public void UpdateState(Vector3 pos, Quaternion rot)
@@ -138,19 +155,19 @@ public class PlayerObject : MonoBehaviour
     #region ===== Interpolation =====
     public void PrepareUpdate(Vector3 pos, Quaternion rot)
     {   
-        MoveTrajectory.Refresh(transform.position, pos, MoveSpeed);
-        RotateTrajectory.Refresh(transform.rotation, rot);
+        moveTrajectory.Refresh(transform.position, pos, MoveSpeed);
+        rotateTrajectory.Refresh(transform.rotation, rot);
     }
 
     public void GameUpdate(float deltaTime)
     {
-        if (!MoveTrajectory.IsDone && !MoveTrajectory.CheckDone)
+        if (!moveTrajectory.IsDone && !moveTrajectory.CheckDone)
         {
-            transform.position = MoveTrajectory.Update(deltaTime);
+            transform.position = moveTrajectory.Update(deltaTime);
         }
-        if(!RotateTrajectory.IsDone)
+        if(!rotateTrajectory.IsDone)
         {
-            transform.rotation = RotateTrajectory.Update(deltaTime);
+            transform.rotation = rotateTrajectory.Update(deltaTime);
         }
     }
     #endregion

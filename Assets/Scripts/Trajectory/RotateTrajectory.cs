@@ -3,24 +3,16 @@
 public class RotateTrajectory {
 
     #region ===== Fields =====
+    private const float totalTime = Constant.ServerDeltaTime;
     private Quaternion rotation;
     private Quaternion start;
     private Quaternion end;
     private bool isDone = true;
-    private float totalTime;
     private float currentTime;
     #endregion
 
     #region ===== Properties =====
     public bool IsDone { get { return isDone; } }
-
-    #endregion
-
-    #region ===== Constructor =====
-    public RotateTrajectory(float serverTime)
-    {
-        totalTime = serverTime;
-    }
     #endregion
 
     #region ===== Methods =====

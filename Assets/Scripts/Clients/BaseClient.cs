@@ -9,9 +9,9 @@ public abstract class BaseClient : MonoBehaviour
     protected Dictionary<long, PlayerObject> playObjectDict = new Dictionary<long, PlayerObject>();
     protected Dictionary<long, Projectile> projectileDict = new Dictionary<long, Projectile>();
     public long objectIndex;
-    private bool isPrediction;
-    private bool isReconcilation;
-    private bool isInterpolation;
+    private bool isPrediction = true;
+    private bool isReconcilation = true;
+    private bool isInterpolation = true;
     private long commandSoFar = 0;
     private long currentTick;
 
@@ -97,7 +97,10 @@ public abstract class BaseClient : MonoBehaviour
             long objId = players[i].id;
             var obj = playObjectDict[objId];
 
-            obj.SetHp(players[i].hp);
+            var newHp = players[i].hp;
+
+            obj.SetHp(newHp);
+            bool hasRespawn = obj.CheckRespawn(newHp);
 
             if (objectIndex == objId && isReconcilation && isPrediction && snapShot.commandId < commandSoFar)
             {
@@ -106,10 +109,11 @@ public abstract class BaseClient : MonoBehaviour
             }
             else
             {
+
                 var rot = Optimazation.DecompressRot(players[i].rotation);
                 var pos = Optimazation.DecompressPos2(players[i].position);
 
-                if (isInterpolation && objectIndex != objId) obj.PrepareUpdate(pos, rot); 
+                if (isInterpolation && objectIndex != objId && !hasRespawn) obj.PrepareUpdate(pos, rot); 
                 else obj.UpdateState(pos, rot);
             }
         }
