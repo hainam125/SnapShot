@@ -10,8 +10,17 @@ public class PlayerView : MonoBehaviour {
     private GameObject tank;
     [SerializeField]
     private GameObject explosion;
-    [SerializeField]
-    private GameObject mCamera;
+
+    private Transform nameCanvas;
+
+    private void Start()
+    {
+        nameCanvas = nameTxt.transform.parent;
+    }
+    private void Update()
+    {
+        nameCanvas.LookAt(GameManager.Instance.CamTransform);
+    }
 
     public void SetName(string name)
     {
@@ -22,11 +31,6 @@ public class PlayerView : MonoBehaviour {
     public void UpdateHp(float hpPercentage)
     {
         hpRect.value = hpPercentage * 100f;
-    }
-
-    public void ToggleCamera(bool active)
-    {
-        mCamera.SetActive(active);
     }
 
     public void Explode()

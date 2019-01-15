@@ -13,7 +13,7 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private RemoteClient remoteClient;
     [SerializeField]
-    private GameObject mCamera;
+    private Transform mCamera;
 
     [SerializeField]
     private Toggle cameraToggle;
@@ -23,6 +23,9 @@ public class GameManager : MonoBehaviour
     private Toggle reconcilationToggle;
     [SerializeField]
     private Toggle interpolationToggle;
+
+    private bool isCameraFollowing;
+    public Transform CamTransform { get { return mCamera; } }
 
     public List<Obstacle> obstacles = new List<Obstacle>();
     public List<PlayerObject> playerObjects = new List<PlayerObject>();
@@ -40,6 +43,16 @@ public class GameManager : MonoBehaviour
         interpolationToggle.onValueChanged.AddListener(value => remoteClient.SetInterpolation(value));
     }
 
+    private void Update()
+    {
+        if(isCameraFollowing)
+        {
+            var mainPlayer = remoteClient.GetMainPlayer().transform;
+            mCamera.eulerAngles = new Vector3(30, mainPlayer.eulerAngles.y, 0f);
+            mCamera.position = mainPlayer.position + new Vector3(0, 4.5f, 0) + mainPlayer.forward * -5.5f;
+        }
+    }
+
     private void Init(long objectId)
     {
         gameObject.SetActive(true);
@@ -50,7 +63,7 @@ public class GameManager : MonoBehaviour
         playerObject.SetName(user.username);
         playerObject.SetHp();
 
-        remoteClient.AddObject(playerObject);
+        remoteClient.AddMainObject(playerObject);
         ToggleCamera(cameraToggle.isOn);
     }
 
@@ -132,7 +145,7 @@ public class GameManager : MonoBehaviour
     public void ToggleCamera(bool isMain)
     {
         if (remoteClient.objectIndex < 0) return;
-        mCamera.SetActive(isMain);
-        remoteClient.GetMainPlayer().ToggleCamera(!isMain);
+        isCameraFollowing = !isMain;
+        if (isMain) mCamera.position = new Vector3(0, 1, -10);
     }
 }

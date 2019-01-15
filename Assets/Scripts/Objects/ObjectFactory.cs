@@ -26,14 +26,14 @@ public class ObjectFactory : MonoBehaviour {
     public static PlayerObject CreatePlayer1Object()
     {
         var player = Instantiate(instance.object1Prefab, instance.players).GetComponent<PlayerObject>();
-        player.Init(Config.PlayerRotateSpeed, Config.PlayerMoveSpeed, Config.PlayerMaxHP);
+        player.Init(Config.PlayerRotateSpeed, Config.PlayerMoveSpeed, Config.PlayerMaxHP, Config.fireRate);
         return player;
     }
 
     public static PlayerObject CreatePlayer2Object()
     {
         var player = Instantiate(instance.object2Prefab, instance.players).GetComponent<PlayerObject>();
-        player.Init(Config.PlayerRotateSpeed, Config.PlayerMoveSpeed, Config.PlayerMaxHP);
+        player.Init(Config.PlayerRotateSpeed, Config.PlayerMoveSpeed, Config.PlayerMaxHP, Config.fireRate);
         return player;
     }
 

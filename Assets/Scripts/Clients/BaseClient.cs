@@ -171,6 +171,12 @@ public abstract class BaseClient : MonoBehaviour
         playObjectDict.Add(playerObject.Id, playerObject);
     }
 
+    public void AddMainObject(PlayerObject playerObject)
+    {
+        AddObject(playerObject);
+        input.UpdateFireRate(playerObject.FireRate);
+    }
+
     public PlayerObject RemoveObject(long objectId)
     {
         var playerObject = playObjectDict[objectId];

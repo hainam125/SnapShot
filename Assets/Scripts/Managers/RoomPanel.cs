@@ -42,7 +42,7 @@ public class RoomPanel : MonoBehaviour {
                     //Debug.Log("create room successfully!: " + roomData.name);
                     gameObject.SetActive(false);
                     GameManager.Instance.Init(roomData);
-                    UIManager.Instance.TurnOffTopPanel();
+                    UIManager.Instance.TurnOff();
                 }
                 else
                 {
@@ -90,7 +90,7 @@ public class RoomPanel : MonoBehaviour {
             var roomData = JsonUtility.FromJson<EnterRoom>(response.data);
             gameObject.SetActive(false);
             GameManager.Instance.Init(roomData);
-            UIManager.Instance.TurnOffTopPanel();
+            UIManager.Instance.TurnOff();
         }));
     }
 }

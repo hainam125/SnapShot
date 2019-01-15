@@ -9,7 +9,7 @@ public class ClientInput : MonoBehaviour
     private bool right;
     private bool fire;
 
-    private const int fireRate = 3;
+    private float fireRate;
     private float timeNextFire;
 
     private bool pressUp;
@@ -70,5 +70,10 @@ public class ClientInput : MonoBehaviour
             up = false; down = false; right = false; left = false; fire = false;
         }
         return cmd;
+    }
+
+    public void UpdateFireRate(float rateOfFrie)
+    {
+        fireRate = rateOfFrie;
     }
 }

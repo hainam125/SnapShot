@@ -14,8 +14,8 @@ public class UIManager : MonoBehaviour {
         Instance = this;
 	}
 
-    public void TurnOffTopPanel()
+    public void TurnOff()
     {
-        topPanel.SetActive(false);
+        gameObject.SetActive(false);
     }
 }
