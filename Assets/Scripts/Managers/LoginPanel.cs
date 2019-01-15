@@ -7,15 +7,17 @@ public class LoginPanel : MonoBehaviour {
     private Button loginBtn;
     [SerializeField]
     private InputField nameField;
+    [SerializeField]
+    private User user;
 
     private void Start () {
         Action<Response> callback = (Response response) =>
         {
-            var user = JsonUtility.FromJson<UserData>(response.data);
+            var userData = JsonUtility.FromJson<UserData>(response.data);
             //Debug.Log("login successfully!: " + user.id);
             loginBtn.interactable = true;
             gameObject.SetActive(false);
-            GameManager.Instance.username = user.username;
+            user.username = userData.username;
             UIManager.Instance.roomPanel.SetActive(true);
         };
 

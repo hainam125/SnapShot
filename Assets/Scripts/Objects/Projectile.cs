@@ -2,6 +2,10 @@
 
 public class Projectile : MonoBehaviour
 {
+    [SerializeField]
+    private GameObject shell;
+    [SerializeField]
+    private GameObject explosion;
     private long id;
     public long Id { get { return id; } }
 
@@ -28,5 +32,12 @@ public class Projectile : MonoBehaviour
         {
             transform.position = moveTrajectory.Update(deltaTime);
         }
+    }
+
+    public void ShowExplode()
+    {
+        shell.SetActive(false);
+        explosion.SetActive(true);
+        Destroy(gameObject, 1f);
     }
 }

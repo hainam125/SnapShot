@@ -68,7 +68,8 @@ public class PlayerObject : MonoBehaviour
 
     public void SetActive(bool status)
     {
-        gameObject.SetActive(status);
+        if (status) view.Reset();
+        else view.Explode();
     }
 
     public bool CheckRespawn(int newHp)

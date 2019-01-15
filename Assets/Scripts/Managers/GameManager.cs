@@ -7,16 +7,16 @@ using NetworkMessage;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
-
-    public string username;
-
+    
     [SerializeField]
-    private Toggle cameraToggle;
+    private User user;
     [SerializeField]
     private RemoteClient remoteClient;
     [SerializeField]
     private GameObject mCamera;
 
+    [SerializeField]
+    private Toggle cameraToggle;
     [SerializeField]
     private Toggle predictionToggle;
     [SerializeField]
@@ -47,7 +47,7 @@ public class GameManager : MonoBehaviour
         remoteClient.objectIndex = objectId;
         var playerObject = ObjectFactory.CreatePlayer1Object();
         playerObject.SetId(objectId);
-        playerObject.SetName(username);
+        playerObject.SetName(user.username);
         playerObject.SetHp();
 
         remoteClient.AddObject(playerObject);

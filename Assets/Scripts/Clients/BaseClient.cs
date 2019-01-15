@@ -141,7 +141,7 @@ public abstract class BaseClient : MonoBehaviour
     protected virtual void UpdateInput()
     {
         var cmd = input.GetCmd();
-        if(cmd != 0) SendCommand(cmd);
+        if(cmd != 0 && GetMainPlayer().IsAlive()) SendCommand(cmd);
     }
 
     private void SendCommand(byte cmd)
@@ -186,8 +186,8 @@ public abstract class BaseClient : MonoBehaviour
 
     public void RemoveProjectile(Projectile projectile)
     {
-        Destroy(projectile.gameObject);
         projectileDict.Remove(projectile.Id);
+        projectile.ShowExplode();
     }
     #endregion
 }

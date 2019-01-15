@@ -5,7 +5,11 @@ public class PlayerView : MonoBehaviour {
     [SerializeField]
     private Text nameTxt;
     [SerializeField]
-    private RectTransform hpRect;
+    private Slider hpRect;
+    [SerializeField]
+    private GameObject tank;
+    [SerializeField]
+    private GameObject explosion;
     [SerializeField]
     private GameObject mCamera;
 
@@ -17,11 +21,27 @@ public class PlayerView : MonoBehaviour {
 
     public void UpdateHp(float hpPercentage)
     {
-        hpRect.localScale = new Vector3(hpPercentage, 1f, 1f);
+        hpRect.value = hpPercentage * 100f;
     }
 
     public void ToggleCamera(bool active)
     {
         mCamera.SetActive(active);
+    }
+
+    public void Explode()
+    {
+        ToggleView(true);
+    }
+
+    public void Reset()
+    {
+        ToggleView(false);
+    }
+
+    private void ToggleView(bool isExplosion)
+    {
+        tank.SetActive(!isExplosion);
+        explosion.SetActive(isExplosion);
     }
 }
