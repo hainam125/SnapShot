@@ -174,7 +174,7 @@ public abstract class BaseClient : MonoBehaviour
     public void AddMainObject(PlayerObject playerObject)
     {
         AddObject(playerObject);
-        input.UpdateFireRate(playerObject.FireRate);
+        input.SetFireRate(playerObject.FireRate);
     }
 
     public PlayerObject RemoveObject(long objectId)

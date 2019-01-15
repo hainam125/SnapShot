@@ -5,7 +5,7 @@ public static class Config {
     public const int PlayerMaxHP = 5;
     public static Vector3 PlayerRotateSpeed = new Vector3(0, 50f, 0);
     public const float PlayerMoveSpeed = 7f;
-    public const float fireRate = 2.25f;
+    public const float fireRate = 2.0f;
 
     public const int PlayerPrefabId = 0;
     public const int ObstaclePrefabId = 1;
