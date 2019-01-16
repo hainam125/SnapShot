@@ -60,7 +60,7 @@ public class GameManager : MonoBehaviour
         remoteClient.objectIndex = objectId;
         var playerObject = ObjectFactory.CreatePlayer1Object();
         playerObject.SetId(objectId);
-        playerObject.SetName(user.username);
+        playerObject.view.SetName(user.username);
         playerObject.SetHp();
 
         remoteClient.AddMainObject(playerObject);
@@ -112,7 +112,7 @@ public class GameManager : MonoBehaviour
         }
         for (int i = 0; i < roomData.ids.Count; i++)
         {
-            newObjects[roomData.ids[i]].SetName(roomData.usernames[i]);
+            newObjects[roomData.ids[i]].view.SetName(roomData.usernames[i]);
         }
     }
 
@@ -122,7 +122,7 @@ public class GameManager : MonoBehaviour
         Debug.Log("User joined: " + userJoined.username);
         var playerObject = ObjectFactory.CreatePlayer2Object();
         playerObject.SetId(userJoined.objectId);
-        playerObject.SetName(userJoined.username);
+        playerObject.view.SetName(userJoined.username);
         playerObject.SetHp();
         remoteClient.AddObject(playerObject);
         playerObjects.Add(playerObject);

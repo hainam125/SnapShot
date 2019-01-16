@@ -3,8 +3,6 @@ using UnityEngine;
 
 public class ClientInput : MonoBehaviour
 {
-    private ClientSound sound;
-
     private bool up;
     private bool down;
     private bool left;
@@ -30,11 +28,6 @@ public class ClientInput : MonoBehaviour
     public void ToggleDownLeft(bool r) { pressDown = r; pressLeft = r; }
     public void ToggleFire(bool r) { pressFire = r; }
 
-    private void Awake()
-    {
-        sound = GetComponent<ClientSound>();
-    }
-
     private void Update()
     {
         if (Input.GetKey(KeyCode.W) || pressUp)
@@ -59,7 +52,6 @@ public class ClientInput : MonoBehaviour
             {
                 fire = true;
                 timeNextFire = Time.timeSinceLevelLoad + 1f / fireRate;
-                sound.ShotFire();
             }
         }
     }
