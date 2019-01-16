@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using NetworkMessage;
 
 public class GameManager : MonoBehaviour
 {
-    public static GameManager Instance;
+    private static GameManager instance;
+    public static GameManager Instance { get { return instance; } }
     
     [SerializeField]
     private User user;
@@ -14,7 +14,7 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private Transform mCamera;
 
-    private bool isCameraFollowing;
+    private bool isFollowingCamera;
     public Transform CamTransform { get { return mCamera; } }
 
     public List<Obstacle> obstacles = new List<Obstacle>();
@@ -23,14 +23,14 @@ public class GameManager : MonoBehaviour
     private void Awake()
     {
         Application.targetFrameRate = 60;
-        Instance = this;
+        instance = this;
 
         SetActive(false);
     }
 
     private void Update()
     {
-        if(isCameraFollowing)
+        if(isFollowingCamera)
         {
             var mainPlayer = remoteClient.GetMainPlayer().transform;
             mCamera.eulerAngles = new Vector3(30, mainPlayer.eulerAngles.y, 0f);
@@ -46,8 +46,7 @@ public class GameManager : MonoBehaviour
 
     private void Init(long objectId)
     {
-        gameObject.SetActive(true);
-        remoteClient.gameObject.SetActive(true);
+        SetActive(true);
         remoteClient.objectIndex = objectId;
         var playerObject = ObjectFactory.CreatePlayer1Object();
         playerObject.SetId(objectId);
@@ -145,7 +144,7 @@ public class GameManager : MonoBehaviour
     public void ToggleCamera(bool isFixed)
     {
         if (remoteClient.objectIndex < 0) return;
-        isCameraFollowing = !isFixed;
+        isFollowingCamera = !isFixed;
         if (isFixed)
         {
             mCamera.position = new Vector3(0, 20, -20);
