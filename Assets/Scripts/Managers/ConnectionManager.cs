@@ -28,7 +28,6 @@ public class ConnectionManager : MonoBehaviour
     public static void Connect(string url, Action onSuccess, Action onFail)
     {
         instance.ConnectTo(url, onSuccess, onFail);
-        //instance.ConnectTo("wss://192.168.52.16/ws", onSuccess, onFail);
     }
 
     public static void Send(Request request)

@@ -1,7 +1,15 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System.Collections.Generic;
 
-public class RoomList {
-    public List<string> rooms;
+[System.Serializable]
+public class Room
+{
+    public long id;
+    public string name;
+    public int maxPlayer;
+    public int size;
+}
+
+public class RoomList
+{
+    public List<Room> rooms;
 }

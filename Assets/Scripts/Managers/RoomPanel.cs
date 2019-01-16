@@ -24,18 +24,24 @@ public class RoomPanel : MonoBehaviour {
         AddUIEvents();
     }
 
-    private void RefreshRoom(List<string> rooms)
+    private void OnEnable()
     {
+        GetRoomList();
+    }
+
+    private void RefreshRoom(List<Room> rooms)
+    {
+        if (rooms == null) return;
         for (int i = 1; i < roomContainer.childCount; i++) Destroy(roomContainer.GetChild(i).gameObject);
 
-        foreach (var roomName in rooms)
+        foreach (var room in rooms)
         {
             Button btn = Instantiate(buttonPrefab, roomContainer).GetComponent<Button>();
             btn.gameObject.SetActive(true);
-            btn.transform.GetChild(0).GetComponent<Text>().text = roomName;
+            btn.transform.GetChild(0).GetComponent<Text>().text = string.Format("{0} ({1}/{2})",room.name, room.size, room.maxPlayer);
             btn.onClick.AddListener(() =>
             {
-                JoinRoom(roomName);
+                JoinRoom(room.name);
             });
         }
     }
@@ -47,7 +53,6 @@ public class RoomPanel : MonoBehaviour {
             var roomData = JsonUtility.FromJson<EnterRoom>(response.data);
             if (!string.IsNullOrEmpty(roomData.snapShot))
             {
-                gameObject.SetActive(false);
                 GameManager.Instance.Init(roomData);
                 UIManager.Instance.Toggle(true);
             }
@@ -55,6 +60,36 @@ public class RoomPanel : MonoBehaviour {
             {
                 Debug.Log("Cannot join room");
             }
+        }));
+    }
+
+    private void CreateRoom(string roomName, int maxPlayer)
+    {
+        var room = new CreateRoom(roomName, maxPlayer);
+        ConnectionManager.Send(new Request(JsonUtility.ToJson(room), typeof(CreateRoom).ToString(), (Response response) =>
+        {
+            var roomData = JsonUtility.FromJson<CreateRoom>(response.data);
+            if (roomData.success)
+            {
+                SetDefaultValue();
+                GameManager.Instance.Init(roomData);
+                UIManager.Instance.Toggle(true);
+            }
+            else
+            {
+                Debug.Log("failed");
+            }
+        }));
+    }
+
+    private void GetRoomList()
+    {
+        ConnectionManager.Send(new Request(string.Empty, typeof(RoomList).ToString(), (Response response) =>
+        {
+            var data = JsonUtility.FromJson<RoomList>(response.data);
+            //Debug.Log("create room successfully!: " + data.rooms.Count);
+            RefreshRoom(data.rooms);
+            getRoomBtn.interactable = true;
         }));
     }
 
@@ -75,21 +110,8 @@ public class RoomPanel : MonoBehaviour {
             string roomName = nameField.text;
             int nb = int.Parse(playerNbField.text);
 
-            var room = new CreateRoom(roomName, nb);
-            ConnectionManager.Send(new Request(JsonUtility.ToJson(room), typeof(CreateRoom).ToString(), (Response response) =>
-            {
-                var roomData = JsonUtility.FromJson<CreateRoom>(response.data);
-                if (roomData.success)
-                {
-                    SetDefaultValue();
-                    GameManager.Instance.Init(roomData);
-                    UIManager.Instance.Toggle(true);
-                }
-                else
-                {
-                    Debug.Log("failed");
-                }
-            }));
+            CreateRoom(roomName, nb);
+            
             nameField.text = string.Empty;
             createRoomBtn.interactable = false;
         });
@@ -97,16 +119,9 @@ public class RoomPanel : MonoBehaviour {
 
         getRoomBtn.onClick.AddListener(() =>
         {
-            ConnectionManager.Send(new Request(string.Empty, typeof(RoomList).ToString(), (Response response) =>
-            {
-                var data = JsonUtility.FromJson<RoomList>(response.data);
-                //Debug.Log("create room successfully!: " + data.rooms.Count);
-                RefreshRoom(data.rooms);
-                getRoomBtn.interactable = true;
-            }));
+            GetRoomList();
             getRoomBtn.interactable = false;
         });
-        getRoomBtn.onClick.Invoke();
     }
 
     private void SetDefaultValue()

@@ -12784,7 +12784,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Enter name ...
+  m_Text: Max Player ...
 --- !u!222 &2079533627
 CanvasRenderer:
   m_ObjectHideFlags: 0
