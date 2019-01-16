@@ -21,17 +21,24 @@ public class ObjectFactory : MonoBehaviour {
         instance = this;
     }
 
+    public static void Clear()
+    {
+        for (int i = 0; i < instance.projectiles.childCount; i++) Destroy(instance.projectiles.GetChild(i).gameObject);
+        for (int i = 0; i < instance.players.childCount; i++) Destroy(instance.players.GetChild(i).gameObject);
+        for (int i = 0; i < instance.obstacles.childCount; i++) Destroy(instance.obstacles.GetChild(i).gameObject);
+    }
+
     public static PlayerObject CreatePlayer1Object()
     {
         var player = Instantiate(instance.objectPrefab, instance.players).GetComponent<PlayerObject>();
-        player.Init(Config.PlayerRotateSpeed, Config.PlayerMoveSpeed, Config.PlayerMaxHP, Config.fireRate);
+        player.Init(Config.PlayerRotateSpeed, Config.PlayerMoveSpeed, Config.PlayerMaxHP);
         return player;
     }
 
     public static PlayerObject CreatePlayer2Object()
     {
         var player = Instantiate(instance.objectPrefab, instance.players).GetComponent<PlayerObject>();
-        player.Init(Config.PlayerRotateSpeed, Config.PlayerMoveSpeed, Config.PlayerMaxHP, Config.fireRate);
+        player.Init(Config.PlayerRotateSpeed, Config.PlayerMoveSpeed, Config.PlayerMaxHP);
         return player;
     }
 

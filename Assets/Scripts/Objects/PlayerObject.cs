@@ -20,7 +20,6 @@ public class PlayerObject : MonoBehaviour
     public long Id { get { return id; } }
     public int currentHp;
     private int maxHp;
-    public float FireRate { get; private set; }
 
     public Vector3 RotateSpeed { get; private set; }
     public float MoveSpeed { get; private set; }
@@ -42,12 +41,11 @@ public class PlayerObject : MonoBehaviour
     }
 
     #region ===== Methods =====
-    public void Init(Vector3 rotSpeed, float moveSpeed, int hp, float fireRate)
+    public void Init(Vector3 rotSpeed, float moveSpeed, int hp)
     {
         RotateSpeed = rotSpeed;
         MoveSpeed = moveSpeed;
         maxHp = hp;
-        FireRate = fireRate;
         stateMachine = new StateMachine<PlayerObject>(this);
         stateMachine.currentState = PlayerState.Idling.Instance;
         stateMachine.currentState.Enter(this);

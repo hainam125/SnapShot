@@ -9,9 +9,6 @@ public class ClientInput : MonoBehaviour
     private bool right;
     private bool fire;
 
-    private float fireRate;
-    private float timeNextFire;
-
     private bool pressUp;
     private bool pressDown;
     private bool pressLeft;
@@ -48,11 +45,7 @@ public class ClientInput : MonoBehaviour
         }
         if (Input.GetKey(KeyCode.Space) || pressFire)
         {
-            if (timeNextFire < Time.timeSinceLevelLoad)
-            {
-                fire = true;
-                timeNextFire = Time.timeSinceLevelLoad + 1f / fireRate;
-            }
+            fire = true;
         }
     }
 
@@ -70,10 +63,5 @@ public class ClientInput : MonoBehaviour
             up = false; down = false; right = false; left = false; fire = false;
         }
         return cmd;
-    }
-
-    public void SetFireRate(float rateOfFrie)
-    {
-        fireRate = rateOfFrie;
     }
 }

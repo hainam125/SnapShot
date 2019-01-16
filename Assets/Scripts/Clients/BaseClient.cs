@@ -25,7 +25,6 @@ public abstract class BaseClient : MonoBehaviour
     {
         input = GetComponent<ClientInput>();
         deltaTime = Time.fixedDeltaTime;
-        Debug.Log(deltaTime);
     }
 
     private void FixedUpdate()
@@ -161,6 +160,13 @@ public abstract class BaseClient : MonoBehaviour
 
     #region ===== Objects =====
 
+    public void Clear()
+    {
+        isProcessingShapShot = false;
+        playObjectDict.Clear();
+        projectileDict.Clear();
+    }
+
     public PlayerObject GetMainPlayer()
     {
         return playObjectDict[objectIndex];
@@ -169,12 +175,6 @@ public abstract class BaseClient : MonoBehaviour
     public void AddObject(PlayerObject playerObject)
     {
         playObjectDict.Add(playerObject.Id, playerObject);
-    }
-
-    public void AddMainObject(PlayerObject playerObject)
-    {
-        AddObject(playerObject);
-        input.SetFireRate(playerObject.FireRate);
     }
 
     public PlayerObject RemoveObject(long objectId)

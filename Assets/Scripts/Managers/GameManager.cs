@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using NetworkMessage;
@@ -15,15 +14,6 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private Transform mCamera;
 
-    [SerializeField]
-    private Toggle cameraToggle;
-    [SerializeField]
-    private Toggle predictionToggle;
-    [SerializeField]
-    private Toggle reconcilationToggle;
-    [SerializeField]
-    private Toggle interpolationToggle;
-
     private bool isCameraFollowing;
     public Transform CamTransform { get { return mCamera; } }
 
@@ -34,13 +24,8 @@ public class GameManager : MonoBehaviour
     {
         Application.targetFrameRate = 60;
         Instance = this;
-        gameObject.SetActive(false);
-        remoteClient.gameObject.SetActive(false);
 
-        cameraToggle.onValueChanged.AddListener(value => ToggleCamera(value));
-        predictionToggle.onValueChanged.AddListener(value => remoteClient.SetPrediction(value));
-        reconcilationToggle.onValueChanged.AddListener(value => remoteClient.SetReconcilation(value));
-        interpolationToggle.onValueChanged.AddListener(value => remoteClient.SetInterpolation(value));
+        SetActive(false);
     }
 
     private void Update()
@@ -53,6 +38,12 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private void SetActive(bool isActive)
+    {
+        gameObject.SetActive(isActive);
+        remoteClient.gameObject.SetActive(isActive);
+    }
+
     private void Init(long objectId)
     {
         gameObject.SetActive(true);
@@ -63,8 +54,8 @@ public class GameManager : MonoBehaviour
         playerObject.view.SetName(user.username);
         playerObject.SetHp();
 
-        remoteClient.AddMainObject(playerObject);
-        ToggleCamera(cameraToggle.isOn);
+        remoteClient.AddObject(playerObject);
+        ToggleCamera(false);
     }
 
     public void Init(CreateRoom createRoom)
@@ -116,6 +107,15 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void Clear()
+    {
+        obstacles.Clear();
+        playerObjects.Clear();
+        remoteClient.Clear();
+        ObjectFactory.Clear();
+        SetActive(false);
+    }
+
     public void Join(Response response)
     {
         var userJoined = JsonUtility.FromJson<UserJoined>(response.data);
@@ -142,10 +142,14 @@ public class GameManager : MonoBehaviour
         remoteClient.ReceiveSnapShot(snapShot);
     }
 
-    public void ToggleCamera(bool isMain)
+    public void ToggleCamera(bool isFixed)
     {
         if (remoteClient.objectIndex < 0) return;
-        isCameraFollowing = !isMain;
-        if (isMain) mCamera.position = new Vector3(0, 1, -10);
+        isCameraFollowing = !isFixed;
+        if (isFixed)
+        {
+            mCamera.position = new Vector3(0, 20, -20);
+            mCamera.eulerAngles = new Vector3(50, 0, 0);
+        }
     }
 }
